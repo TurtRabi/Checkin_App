@@ -6,6 +6,9 @@ using Service.LandmarkService;
 using Service.LandmarkVisitService;
 using Service.BadgeService;
 using Service.MissionService;
+using Service.TreasureService;
+using Service.UserTreasureService;
+using Service.StressLogService;
 
 namespace API_UsePrevention.Extensions
 {
@@ -21,6 +24,9 @@ namespace API_UsePrevention.Extensions
             services.AddScoped<ILandmarkVisitService, LandmarkVisitService>();
             services.AddScoped<IBadgeService, BadgeService>();
             services.AddScoped<IMissionService, MissionService>();
+            services.AddScoped<ITreasureService, TreasureService>();
+            services.AddScoped<IUserTreasureService, UserTreasureService>();
+            services.AddScoped<IStressLogService, StressLogService>();
 
             return services;
         }

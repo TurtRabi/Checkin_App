@@ -22,6 +22,7 @@ namespace Repository.Models
         public string ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string Status { get; set; } = "Pending"; // e.g., "Pending", "Approved", "Rejected"
 
         public virtual ICollection<LandmarkVisit> LandmarkVisits { get; set; }
         public virtual ICollection<Treasure> Treasures { get; set; }

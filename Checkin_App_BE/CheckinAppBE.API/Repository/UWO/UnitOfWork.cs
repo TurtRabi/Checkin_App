@@ -14,12 +14,12 @@ namespace Repository.UWO
         public IGenericRepository<Role> RoleRepository { get; }
         public ISocialAuthenticationRepository SocialAuthenticationRepository { get; }
         public IGenericRepository<StressLog> StressLogRepository { get; }
-        public IGenericRepository<Treasure> TreasureRepository { get; }
+        public ITreasureRepository TreasureRepository { get; }
         public IGenericRepository<User> UserRepository { get; }
         public IUserBadgeRepository UserBadgeRepository { get; }
         public IUserMissionRepository UserMissionRepository { get; }
         public IGenericRepository<UserRole> UserRoleRepository { get; }
-        public IGenericRepository<UserTreasure> UserTreasureRepository { get; }
+        public IUserTreasureRepository UserTreasureRepository { get; }
         public IGenericRepository<UserSession> UserSessionRepository { get; }
 
         public UnitOfWork(TravelCardsDBContext context)
@@ -33,12 +33,12 @@ namespace Repository.UWO
             RoleRepository = new GenericRepository<Role>(_context);
             SocialAuthenticationRepository = new SocialAuthenticationRepository(_context);
             StressLogRepository = new GenericRepository<StressLog>(_context);
-            TreasureRepository = new GenericRepository<Treasure>(_context);
+            TreasureRepository = new TreasureRepository(_context);
             UserRepository = new GenericRepository<User>(_context);
             UserBadgeRepository = new UserBadgeRepository(_context);
             UserMissionRepository = new UserMissionRepository(_context);
             UserRoleRepository = new GenericRepository<UserRole>(_context);
-            UserTreasureRepository = new GenericRepository<UserTreasure>(_context);
+            UserTreasureRepository = new UserTreasureRepository(_context);
             UserSessionRepository = new GenericRepository<UserSession>(_context);
         }
 

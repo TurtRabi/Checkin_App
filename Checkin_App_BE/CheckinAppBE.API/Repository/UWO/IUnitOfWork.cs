@@ -13,12 +13,12 @@ namespace Repository.UWO
         IGenericRepository<Role> RoleRepository { get; }
         ISocialAuthenticationRepository SocialAuthenticationRepository { get; }
         IGenericRepository<StressLog> StressLogRepository { get; }
-        IGenericRepository<Treasure> TreasureRepository { get; }
+        ITreasureRepository TreasureRepository { get; }
         IGenericRepository<User> UserRepository { get; }
         IUserBadgeRepository UserBadgeRepository { get; }
         IUserMissionRepository UserMissionRepository { get; }
         IGenericRepository<UserRole> UserRoleRepository { get; }
-        IGenericRepository<UserTreasure> UserTreasureRepository { get; }
+        IUserTreasureRepository UserTreasureRepository { get; }
         IGenericRepository<UserSession> UserSessionRepository { get; }
         Task<int> CommitAsync();
     }

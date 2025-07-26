@@ -27,6 +27,9 @@ namespace Repository.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public int Points { get; set; } = 0;
+        public int Coin { get; set; } = 0;
+        public int ExperiencePoints { get; set; } = 0;
+        public bool IsBanned { get; set; } = false;
 
         public virtual LocalAuthentication? LocalAuthentication { get; set; }
         public virtual ICollection<LandmarkVisit> LandmarkVisits { get; set; }

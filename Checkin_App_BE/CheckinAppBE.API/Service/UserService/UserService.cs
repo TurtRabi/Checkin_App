@@ -64,6 +64,8 @@ namespace Service.UserService
                     ProfilePictureUrl = user.ProfilePictureUrl,
                     CreatedAt = user.CreatedAt,
                     UpdatedAt = user.UpdatedAt,
+                    Coin = user.Coin,
+                    ExperiencePoints = user.ExperiencePoints,
                     RoleNames = roleNames
                 });
             }
@@ -96,6 +98,8 @@ namespace Service.UserService
                 ProfilePictureUrl = user.ProfilePictureUrl,
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt,
+                Coin = user.Coin,
+                ExperiencePoints = user.ExperiencePoints,
                 RoleNames = roleNames
             });
         }
@@ -312,6 +316,46 @@ namespace Service.UserService
             // Simple level calculation: 100 points per level
             var level = (int)Math.Floor(user.Points / 100.0) + 1;
             return ServiceResult<int>.Success(level);
+        }
+
+        public async Task<ServiceResult> BanUserAsync(Guid userId)
+        {
+            var user = await _unitOfWork.UserRepository.GetFirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return ServiceResult.Fail("Người dùng không tồn tại.", 404);
+            }
+
+            if (user.IsBanned)
+            {
+                return ServiceResult.Fail("Người dùng đã bị cấm.", 400);
+            }
+
+            user.IsBanned = true;
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.CommitAsync();
+
+            return ServiceResult.Success("Người dùng đã bị cấm thành công.");
+        }
+
+        public async Task<ServiceResult> UnbanUserAsync(Guid userId)
+        {
+            var user = await _unitOfWork.UserRepository.GetFirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return ServiceResult.Fail("Người dùng không tồn tại.", 404);
+            }
+
+            if (!user.IsBanned)
+            {
+                return ServiceResult.Fail("Người dùng không bị cấm.", 400);
+            }
+
+            user.IsBanned = false;
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.CommitAsync();
+
+            return ServiceResult.Success("Người dùng đã được bỏ cấm thành công.");
         }
     }
 }

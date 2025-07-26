@@ -20,5 +20,7 @@ namespace Service.UserService
         Task<ServiceResult> CreateUserAndLocalAuthAsync(User newUser, LocalAuthentication newLocalAuth);
         Task<ServiceResult> CreateUserAndSocialAuthAsync(User newUser, SocialAuthentication newSocialAuth);
         Task<ServiceResult<int>> GetUserLevelAsync(Guid userId);
+        Task<ServiceResult> BanUserAsync(Guid userId);
+        Task<ServiceResult> UnbanUserAsync(Guid userId);
     }
 }

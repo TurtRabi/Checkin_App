@@ -28,7 +28,8 @@ namespace Service.LandmarkService
                 Latitude = l.Latitude,
                 Longitude = l.Longitude,
                 Address = l.Address,
-                ImageUrl = l.ImageUrl
+                ImageUrl = l.ImageUrl,
+                Status = l.Status
             });
             return ServiceResult<IEnumerable<LandmarkResponseDto>>.Success(landmarkDtos);
         }
@@ -63,7 +64,8 @@ namespace Service.LandmarkService
                 Latitude = request.Latitude,
                 Longitude = request.Longitude,
                 Address = request.Address,
-                ImageUrl = request.ImageUrl
+                ImageUrl = request.ImageUrl,
+                Status = "Pending"
             };
             await _landmarkRepository.AddAsync(landmark);
             await _unitOfWork.CommitAsync();

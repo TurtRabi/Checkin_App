@@ -155,4 +155,6 @@ E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\obj\Debug\net8.0
 E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\obj\Debug\net8.0\Checkin_App_API.pdb
 E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\obj\Debug\net8.0\Checkin_App_API.genruntimeconfig.cache
 E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\obj\Debug\net8.0\ref\Checkin_App_API.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\bin\Debug\net8.0\AutoMapper.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\bin\Debug\net8.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
 E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

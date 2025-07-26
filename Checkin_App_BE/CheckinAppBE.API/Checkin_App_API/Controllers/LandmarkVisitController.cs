@@ -2,6 +2,7 @@ using Common;
 using Dto.LandmarkVisit;
 using Microsoft.AspNetCore.Mvc;
 using Service.LandmarkVisitService;
+using Service.TreasureService;
 using System.Security.Claims;
 
 namespace Checkin_App_API.Controllers
@@ -11,10 +12,12 @@ namespace Checkin_App_API.Controllers
     public class LandmarkVisitController : ControllerBase
     {
         private readonly ILandmarkVisitService _landmarkVisitService;
+        private readonly ITreasureService _treasureService;
 
-        public LandmarkVisitController(ILandmarkVisitService landmarkVisitService)
+        public LandmarkVisitController(ILandmarkVisitService landmarkVisitService, ITreasureService treasureService)
         {
             _landmarkVisitService = landmarkVisitService;
+            _treasureService = treasureService;
         }
 
         [HttpPost]
@@ -29,6 +32,9 @@ namespace Checkin_App_API.Controllers
             var result = await _landmarkVisitService.CreateLandmarkVisitAsync(userId, request);
             if (result.IsSuccess)
             {
+                // Attempt to open special treasure after successful check-in
+                await _treasureService.OpenSpecialTreasureAsync(userId, result.Data.Id);
+
                 return StatusCode(StatusCodes.Status201Created, result);
             }
             return StatusCode(result.StatusCode, result);
