@@ -1,0 +1,12 @@
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\bin\Debug\net8.0\Common.deps.json
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\bin\Debug\net8.0\Common.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\bin\Debug\net8.0\Common.pdb
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\obj\Debug\net8.0\Common.GeneratedMSBuildEditorConfig.editorconfig
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\obj\Debug\net8.0\Common.AssemblyInfoInputs.cache
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\obj\Debug\net8.0\Common.AssemblyInfo.cs
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\obj\Debug\net8.0\Common.csproj.CoreCompileInputs.cache
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\obj\Debug\net8.0\Common.sourcelink.json
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\obj\Debug\net8.0\Common.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\obj\Debug\net8.0\refint\Common.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\obj\Debug\net8.0\Common.pdb
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Common\obj\Debug\net8.0\ref\Common.dll

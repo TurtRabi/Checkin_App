@@ -1,0 +1,39 @@
+﻿using System;
+using System.Collections.Generic;
+
+#nullable disable
+
+namespace Repository.Models
+{
+    public partial class User
+    {
+        public User()
+        {
+            LandmarkVisits = new HashSet<LandmarkVisit>();
+            SocialAuthentications = new HashSet<SocialAuthentication>();
+            StressLogs = new HashSet<StressLog>();
+            UserBadges = new HashSet<UserBadge>();
+            UserMissions = new HashSet<UserMission>();
+            UserRoles = new HashSet<UserRole>();
+            UserTreasures = new HashSet<UserTreasure>();
+        }
+
+        public Guid UserId { get; set; }
+        public required string UserName { get; set; }
+        public string DisplayName { get; set; }
+        public string? Email { get; set; }
+        public string? ProfilePictureUrl { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
+        public virtual LocalAuthentication LocalAuthentication { get; set; }
+        public virtual ICollection<LandmarkVisit> LandmarkVisits { get; set; }
+        public virtual ICollection<SocialAuthentication> SocialAuthentications { get; set; }
+        public virtual ICollection<StressLog> StressLogs { get; set; }
+        public virtual ICollection<UserBadge> UserBadges { get; set; }
+        public virtual ICollection<UserMission> UserMissions { get; set; }
+        public virtual ICollection<UserRole> UserRoles { get; set; }
+        public virtual ICollection<UserTreasure> UserTreasures { get; set; }
+        public virtual ICollection<UserSession> UserSessions { get; set; }
+    }
+}
