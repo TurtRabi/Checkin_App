@@ -1,4 +1,3 @@
-
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +7,7 @@ namespace Repository.Models
     public class UserSession
     {
         [Key]
-        public Guid SessionId { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         public Guid UserId { get; set; }

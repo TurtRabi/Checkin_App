@@ -6,12 +6,14 @@ namespace Repository.Repositories
 {
     public interface IGenericRepository<T> 
     {
-        Task<IEnumerable<T>> GetAll();
+        Task<IEnumerable<T>> GetAllAsync();
         Task<T?> GetByIdAsync(Guid id);
         Task AddAsync(T entity);
         void Update(T entity);
-        Task DeleteAsync(T entity);
+        void Delete(T entity);
         IQueryable<T> Query();
+        Task<IEnumerable<T>> GetByConditionAsync(Expression<Func<T, bool>> expression, string includeProperties = "");
+        Task<T?> GetSingleByConditionAsync(Expression<Func<T, bool>> expression, string includeProperties = "");
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
         Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
         Task AddRangeAsync(IEnumerable<T> entities);

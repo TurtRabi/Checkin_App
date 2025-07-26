@@ -5,21 +5,21 @@ namespace Repository.UWO
 {
     public interface IUnitOfWork
     {
-        IGenericRepository<Badge> Badge { get; }
-        IGenericRepository<Landmark> Landmark { get; }
-        IGenericRepository<LandmarkVisit> LandmarkVisit { get; }
-        IGenericRepository<LocalAuthentication> LocalAuthentication { get; }
-        IGenericRepository<Mission> Mission { get; }
-        IGenericRepository<Role> Role { get; }
-        IGenericRepository<SocialAuthentication> SocialAuthentication { get; }
-        IGenericRepository<StressLog> StressLog { get; }
-        IGenericRepository<Treasure> Treasure { get; }
-        IGenericRepository<User> User { get; }
-        IGenericRepository<UserBadge> UserBadge { get; }
-        IGenericRepository<UserMission> UserMission { get; }
-        IGenericRepository<UserRole> UserRole { get; }
-        IGenericRepository<UserTreasure> UserTreasure { get; }
-        IGenericRepository<UserSession> UserSession { get; }
+        IBadgeRepository BadgeRepository { get; }
+        ILandmarkRepository LandmarkRepository { get; }
+        ILandmarkVisitRepository LandmarkVisitRepository { get; }
+        IGenericRepository<LocalAuthentication> LocalAuthenticationRepository { get; }
+        IMissionRepository MissionRepository { get; }
+        IGenericRepository<Role> RoleRepository { get; }
+        ISocialAuthenticationRepository SocialAuthenticationRepository { get; }
+        IGenericRepository<StressLog> StressLogRepository { get; }
+        IGenericRepository<Treasure> TreasureRepository { get; }
+        IGenericRepository<User> UserRepository { get; }
+        IUserBadgeRepository UserBadgeRepository { get; }
+        IUserMissionRepository UserMissionRepository { get; }
+        IGenericRepository<UserRole> UserRoleRepository { get; }
+        IGenericRepository<UserTreasure> UserTreasureRepository { get; }
+        IGenericRepository<UserSession> UserSessionRepository { get; }
         Task<int> CommitAsync();
     }
 }

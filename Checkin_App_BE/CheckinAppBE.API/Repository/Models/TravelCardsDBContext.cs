@@ -28,7 +28,7 @@ namespace Repository.Models
         public virtual DbSet<Treasure> Treasures { get; set; }
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<UserBadge> UserBadges { get; set; }
-        public virtual DbSet<UserMission> UserMissions { get; set; }
+        public virtual DbSet<UserMission> UserMissions { get; }
         public virtual DbSet<UserRole> UserRoles { get; set; }
         public virtual DbSet<UserTreasure> UserTreasures { get; set; }
         public virtual DbSet<UserSession> UserSessions { get; set; }
@@ -40,7 +40,7 @@ namespace Repository.Models
 
             modelBuilder.Entity<Badge>(entity =>
             {
-                entity.Property(e => e.BadgeId)
+                entity.Property(e => e.Id)
                     .HasColumnName("BadgeID")
                     .HasDefaultValueSql("(newid())");
 
@@ -58,7 +58,7 @@ namespace Repository.Models
             {
                 entity.HasIndex(e => new { e.Latitude, e.Longitude }, "IX_Landmarks_Coordinates");
 
-                entity.Property(e => e.LandmarkId)
+                entity.Property(e => e.Id)
                     .HasColumnName("LandmarkID")
                     .HasDefaultValueSql("(newid())");
 
@@ -66,25 +66,29 @@ namespace Repository.Models
 
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
 
-                entity.Property(e => e.Latitude).HasColumnType("decimal(9, 6)");
+                entity.Property(e => e.Latitude).HasColumnType("float");
 
-                entity.Property(e => e.Longitude).HasColumnType("decimal(9, 6)");
+                entity.Property(e => e.Longitude).HasColumnType("float");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);
+
+                entity.Property(e => e.ImageUrl)
+                    .HasMaxLength(255)
+                    .HasColumnName("ImageURL");
 
                 entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(getutcdate())");
             });
 
             modelBuilder.Entity<LandmarkVisit>(entity =>
             {
-                entity.HasKey(e => e.VisitId)
+                entity.HasKey(e => e.Id)
                     .HasName("PK__Landmark__4D3AA1BE6394BAEA");
 
                 entity.HasIndex(e => new { e.UserId, e.LandmarkId }, "IX_LandmarkVisits_User_Landmark");
 
-                entity.Property(e => e.VisitId)
+                entity.Property(e => e.Id)
                     .HasColumnName("VisitID")
                     .HasDefaultValueSql("(newid())");
 
@@ -96,7 +100,11 @@ namespace Repository.Models
 
                 entity.Property(e => e.UserId).HasColumnName("UserID");
 
-                entity.Property(e => e.VisitTime).HasDefaultValueSql("(getutcdate())");
+                entity.Property(e => e.CheckInTime).HasDefaultValueSql("(getutcdate())");
+
+                entity.Property(e => e.Latitude).HasColumnType("float");
+
+                entity.Property(e => e.Longitude).HasColumnType("float");
 
                 entity.HasOne(d => d.Landmark)
                     .WithMany(p => p.LandmarkVisits)
@@ -131,7 +139,7 @@ namespace Repository.Models
 
             modelBuilder.Entity<Mission>(entity =>
             {
-                entity.Property(e => e.MissionId)
+                entity.Property(e => e.Id)
                     .HasColumnName("MissionID")
                     .HasDefaultValueSql("(newid())");
 
@@ -145,7 +153,7 @@ namespace Repository.Models
                 entity.HasIndex(e => e.RoleName, "UQ__Roles__8A2B616021C3AEE7")
                     .IsUnique();
 
-                entity.Property(e => e.RoleId)
+                entity.Property(e => e.Id)
                     .HasColumnName("RoleID")
                     .HasDefaultValueSql("(newid())");
 
@@ -184,12 +192,12 @@ namespace Repository.Models
 
             modelBuilder.Entity<StressLog>(entity =>
             {
-                entity.HasKey(e => e.LogId)
+                entity.HasKey(e => e.Id)
                     .HasName("PK__StressLo__5E5499A87594AAE9");
 
                 entity.HasIndex(e => new { e.UserId, e.LogTime }, "IX_StressLogs_User_Time");
 
-                entity.Property(e => e.LogId)
+                entity.Property(e => e.Id)
                     .HasColumnName("LogID")
                     .HasDefaultValueSql("(newid())");
 
@@ -205,7 +213,7 @@ namespace Repository.Models
 
             modelBuilder.Entity<Treasure>(entity =>
             {
-                entity.Property(e => e.TreasureId)
+                entity.Property(e => e.Id)
                     .HasColumnName("TreasureID")
                     .HasDefaultValueSql("(newid())");
 
@@ -232,7 +240,7 @@ namespace Repository.Models
                 entity.HasIndex(e => e.UserName, "UQ_Users_Username")
                     .IsUnique();
 
-                entity.Property(e => e.UserId)
+                entity.Property(e => e.Id)
                     .HasColumnName("UserID")
                     .HasDefaultValueSql("(newid())");
 
@@ -259,7 +267,7 @@ namespace Repository.Models
             {
                 entity.HasIndex(e => new { e.UserId, e.BadgeId }, "IX_UserBadges_User_Badge");
 
-                entity.Property(e => e.UserBadgeId)
+                entity.Property(e => e.Id)
                     .HasColumnName("UserBadgeID")
                     .HasDefaultValueSql("(newid())");
 
@@ -285,7 +293,7 @@ namespace Repository.Models
             {
                 entity.HasIndex(e => new { e.UserId, e.MissionId }, "IX_UserMissions_User_Mission");
 
-                entity.Property(e => e.UserMissionId)
+                entity.Property(e => e.Id)
                     .HasColumnName("UserMissionID")
                     .HasDefaultValueSql("(newid())");
 
@@ -335,7 +343,7 @@ namespace Repository.Models
             {
                 entity.HasIndex(e => e.UserId, "IX_UserTreasures_User");
 
-                entity.Property(e => e.UserTreasureId)
+                entity.Property(e => e.Id)
                     .HasColumnName("UserTreasureID")
                     .HasDefaultValueSql("(newid())");
 
@@ -366,9 +374,9 @@ namespace Repository.Models
 
             modelBuilder.Entity<UserSession>(entity =>
             {
-                entity.HasKey(e => e.SessionId);
+                entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.SessionId).HasDefaultValueSql("(newid())");
+                entity.Property(e => e.Id).HasColumnName("SessionId").HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
 

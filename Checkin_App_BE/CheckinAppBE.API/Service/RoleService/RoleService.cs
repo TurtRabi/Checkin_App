@@ -18,9 +18,9 @@ namespace Service.RoleService
             _logger = logger;
         }
 
-        public async Task<IEnumerable<RoleResponseDto>> GetAllRolesAsync(RoleFilterRequestDto filter)
+        public async Task<ServiceResult<IEnumerable<RoleResponseDto>>> GetAllRolesAsync(RoleFilterRequestDto filter)
         {
-            var query = _unitOfWork.Role.Query();
+            var query = _unitOfWork.RoleRepository.Query();
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
@@ -32,48 +32,48 @@ namespace Service.RoleService
                 .Take(filter.PageSize)
                 .ToListAsync();
 
-            return roles.Select(r => new RoleResponseDto
+            return ServiceResult<IEnumerable<RoleResponseDto>>.Success(roles.Select(r => new RoleResponseDto
             {
-                RoleId = r.RoleId,
+                RoleId = r.Id,
                 RoleName = r.RoleName
-            });
+            }));
         }
 
-        public async Task<RoleResponseDto?> GetRoleByIdAsync(Guid roleId)
+        public async Task<ServiceResult<RoleResponseDto>> GetRoleByIdAsync(Guid roleId)
         {
-            var role = await _unitOfWork.Role.GetFirstOrDefaultAsync(r => r.RoleId == roleId);
+            var role = await _unitOfWork.RoleRepository.GetFirstOrDefaultAsync(r => r.Id == roleId);
             if (role == null)
             {
-                return null; // Or throw a specific exception
+                return ServiceResult<RoleResponseDto>.Fail("Vai trò không tồn tại.", 404);
             }
 
-            return new RoleResponseDto
+            return ServiceResult<RoleResponseDto>.Success(new RoleResponseDto
             {
-                RoleId = role.RoleId,
+                RoleId = role.Id,
                 RoleName = role.RoleName
-            };
+            });
         }
 
         public async Task<ServiceResult> CreateRoleAsync(RoleCreateRequestDto request)
         {
             if (string.IsNullOrEmpty(request.RoleName))
             {
-                return ServiceResult.Failed("HB40016", "Tên vai trò không được để trống.");
+                return ServiceResult.Fail("Tên vai trò không được để trống.", 400);
             }
 
-            var existingRole = await _unitOfWork.Role.GetFirstOrDefaultAsync(r => r.RoleName == request.RoleName);
+            var existingRole = await _unitOfWork.RoleRepository.GetFirstOrDefaultAsync(r => r.RoleName == request.RoleName);
             if (existingRole != null)
             {
-                return ServiceResult.Failed("HB40017", "Tên vai trò đã tồn tại.");
+                return ServiceResult.Fail("Tên vai trò đã tồn tại.", 409);
             }
 
             var newRole = new Role
             {
-                RoleId = Guid.NewGuid(),
+                Id = Guid.NewGuid(),
                 RoleName = request.RoleName
             };
 
-            await _unitOfWork.Role.AddAsync(newRole);
+            await _unitOfWork.RoleRepository.AddAsync(newRole);
             await _unitOfWork.CommitAsync();
 
             return ServiceResult.Success("Vai trò đã được tạo thành công.");
@@ -81,25 +81,25 @@ namespace Service.RoleService
 
         public async Task<ServiceResult> UpdateRoleAsync(Guid roleId, RoleUpdateRequestDto request)
         {
-            var role = await _unitOfWork.Role.GetFirstOrDefaultAsync(r => r.RoleId == roleId);
+            var role = await _unitOfWork.RoleRepository.GetFirstOrDefaultAsync(r => r.Id == roleId);
             if (role == null)
             {
-                return ServiceResult.Failed("HB40408", "Vai trò không tồn tại.");
+                return ServiceResult.Fail("Vai trò không tồn tại.", 404);
             }
 
             if (string.IsNullOrEmpty(request.RoleName))
             {
-                return ServiceResult.Failed("HB40018", "Tên vai trò không được để trống.");
+                return ServiceResult.Fail("Tên vai trò không được để trống.", 400);
             }
 
-            var existingRole = await _unitOfWork.Role.GetFirstOrDefaultAsync(r => r.RoleName == request.RoleName && r.RoleId != roleId);
+            var existingRole = await _unitOfWork.RoleRepository.GetFirstOrDefaultAsync(r => r.RoleName == request.RoleName && r.Id != roleId);
             if (existingRole != null)
             {
-                return ServiceResult.Failed("HB40019", "Tên vai trò đã được sử dụng bởi vai trò khác.");
+                return ServiceResult.Fail("Tên vai trò đã được sử dụng bởi vai trò khác.", 409);
             }
 
             role.RoleName = request.RoleName;
-            _unitOfWork.Role.Update(role);
+            _unitOfWork.RoleRepository.Update(role);
             await _unitOfWork.CommitAsync();
 
             return ServiceResult.Success("Vai trò đã được cập nhật thành công.");
@@ -107,20 +107,20 @@ namespace Service.RoleService
 
         public async Task<ServiceResult> DeleteRoleAsync(Guid roleId)
         {
-            var role = await _unitOfWork.Role.GetFirstOrDefaultAsync(r => r.RoleId == roleId);
+            var role = await _unitOfWork.RoleRepository.GetFirstOrDefaultAsync(r => r.Id == roleId);
             if (role == null)
             {
-                return ServiceResult.Failed("HB40409", "Vai trò không tồn tại.");
+                return ServiceResult.Fail("Vai trò không tồn tại.", 404);
             }
 
             // Check if any users are assigned to this role
-            var usersInRole = await _unitOfWork.UserRole.FindAsync(ur => ur.RoleId == roleId);
+            var usersInRole = await _unitOfWork.UserRoleRepository.FindAsync(ur => ur.RoleId == roleId);
             if (usersInRole.Any())
             {
-                return ServiceResult.Failed("HB40020", "Không thể xóa vai trò vì có người dùng đang được gán vai trò này.");
+                return ServiceResult.Fail("Không thể xóa vai trò vì có người dùng đang được gán vai trò này.", 400);
             }
 
-            await _unitOfWork.Role.DeleteAsync(role);
+            _unitOfWork.RoleRepository.Delete(role);
             await _unitOfWork.CommitAsync();
 
             return ServiceResult.Success("Vai trò đã được xóa thành công.");

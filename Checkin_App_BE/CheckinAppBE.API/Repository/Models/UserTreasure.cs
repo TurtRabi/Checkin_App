@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 #nullable disable
@@ -7,7 +7,7 @@ namespace Repository.Models
 {
     public partial class UserTreasure
     {
-        public Guid UserTreasureId { get; set; }
+        public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public Guid TreasureId { get; set; }
         public DateTime CollectedAt { get; set; }

@@ -25,7 +25,7 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Models.Badge", b =>
                 {
-                    b.Property<Guid>("BadgeId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("BadgeID")
@@ -45,14 +45,20 @@ namespace Repository.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("BadgeId");
+                    b.Property<int>("PointsAwarded")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequiredCheckins")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.ToTable("Badges");
                 });
 
             modelBuilder.Entity("Repository.Models.Landmark", b =>
                 {
-                    b.Property<Guid>("LandmarkId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LandmarkID")
@@ -70,11 +76,16 @@ namespace Repository.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Latitude")
-                        .HasColumnType("decimal(9, 6)");
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("ImageURL");
 
-                    b.Property<decimal>("Longitude")
-                        .HasColumnType("decimal(9, 6)");
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -86,7 +97,7 @@ namespace Repository.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("(getutcdate())");
 
-                    b.HasKey("LandmarkId");
+                    b.HasKey("Id");
 
                     b.HasIndex(new[] { "Latitude", "Longitude" }, "IX_Landmarks_Coordinates");
 
@@ -95,11 +106,16 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Models.LandmarkVisit", b =>
                 {
-                    b.Property<Guid>("VisitId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("VisitID")
                         .HasDefaultValueSql("(newid())");
+
+                    b.Property<DateTime>("CheckInTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(255)
@@ -110,6 +126,12 @@ namespace Repository.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LandmarkID");
 
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
@@ -117,12 +139,7 @@ namespace Repository.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("UserID");
 
-                    b.Property<DateTime>("VisitTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("(getutcdate())");
-
-                    b.HasKey("VisitId")
+                    b.HasKey("Id")
                         .HasName("PK__Landmark__4D3AA1BE6394BAEA");
 
                     b.HasIndex("LandmarkId");
@@ -151,7 +168,7 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Models.Mission", b =>
                 {
-                    b.Property<Guid>("MissionId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("MissionID")
@@ -163,19 +180,28 @@ namespace Repository.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDailyMission")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PointsAwarded")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TargetValue")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.HasKey("MissionId");
+                    b.HasKey("Id");
 
                     b.ToTable("Missions");
                 });
 
             modelBuilder.Entity("Repository.Models.Role", b =>
                 {
-                    b.Property<Guid>("RoleId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("RoleID")
@@ -186,7 +212,7 @@ namespace Repository.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("RoleId");
+                    b.HasKey("Id");
 
                     b.HasIndex(new[] { "RoleName" }, "UQ__Roles__8A2B616021C3AEE7")
                         .IsUnique();
@@ -232,7 +258,7 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Models.StressLog", b =>
                 {
-                    b.Property<Guid>("LogId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LogID")
@@ -253,7 +279,7 @@ namespace Repository.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("UserID");
 
-                    b.HasKey("LogId")
+                    b.HasKey("Id")
                         .HasName("PK__StressLo__5E5499A87594AAE9");
 
                     b.HasIndex(new[] { "UserId", "LogTime" }, "IX_StressLogs_User_Time");
@@ -263,7 +289,7 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Models.Treasure", b =>
                 {
-                    b.Property<Guid>("TreasureId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("TreasureID")
@@ -290,7 +316,7 @@ namespace Repository.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("TreasureId");
+                    b.HasKey("Id");
 
                     b.HasIndex("LandmarkId");
 
@@ -299,7 +325,7 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Models.User", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("UserID")
@@ -311,12 +337,16 @@ namespace Repository.Migrations
                         .HasDefaultValueSql("(getutcdate())");
 
                     b.Property<string>("DisplayName")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("int");
 
                     b.Property<string>("ProfilePictureUrl")
                         .HasMaxLength(255)
@@ -333,7 +363,7 @@ namespace Repository.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("UserId");
+                    b.HasKey("Id");
 
                     b.HasIndex(new[] { "UserName" }, "UQ_Users_Username")
                         .IsUnique();
@@ -343,7 +373,7 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Models.UserBadge", b =>
                 {
-                    b.Property<Guid>("UserBadgeId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("UserBadgeID")
@@ -362,7 +392,7 @@ namespace Repository.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("UserID");
 
-                    b.HasKey("UserBadgeId");
+                    b.HasKey("Id");
 
                     b.HasIndex("BadgeId");
 
@@ -373,7 +403,7 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Models.UserMission", b =>
                 {
-                    b.Property<Guid>("UserMissionId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("UserMissionID")
@@ -400,7 +430,7 @@ namespace Repository.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("UserID");
 
-                    b.HasKey("UserMissionId");
+                    b.HasKey("Id");
 
                     b.HasIndex("MissionId");
 
@@ -429,9 +459,10 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Models.UserSession", b =>
                 {
-                    b.Property<Guid>("SessionId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
+                        .HasColumnName("SessionId")
                         .HasDefaultValueSql("(newid())");
 
                     b.Property<DateTime>("CreatedAt")
@@ -461,7 +492,7 @@ namespace Repository.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("SessionId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
@@ -470,7 +501,7 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Models.UserTreasure", b =>
                 {
-                    b.Property<Guid>("UserTreasureId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("UserTreasureID")
@@ -493,7 +524,7 @@ namespace Repository.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("VisitID");
 
-                    b.HasKey("UserTreasureId");
+                    b.HasKey("Id");
 
                     b.HasIndex("TreasureId");
 

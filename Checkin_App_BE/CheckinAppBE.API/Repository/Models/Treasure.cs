@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 #nullable disable
@@ -12,7 +12,7 @@ namespace Repository.Models
             UserTreasures = new HashSet<UserTreasure>();
         }
 
-        public Guid TreasureId { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string ImageUrl { get; set; }

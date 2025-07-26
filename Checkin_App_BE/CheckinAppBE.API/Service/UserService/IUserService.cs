@@ -9,8 +9,8 @@ namespace Service.UserService
 {
     public interface IUserService
     {
-        Task<IEnumerable<UserResponseDto>> GetAllUsersAsync(UserFilterRequestDto filter);
-        Task<UserResponseDto?> GetUserByIdAsync(Guid userId);
+        Task<ServiceResult<IEnumerable<UserResponseDto>>> GetAllUsersAsync(UserFilterRequestDto filter);
+        Task<ServiceResult<UserResponseDto>> GetUserByIdAsync(Guid userId);
         
         Task<ServiceResult> UpdateUserAsync(Guid userId, UserUpdateRequestDto request);
         Task<ServiceResult> DeleteUserAsync(Guid userId);
@@ -19,5 +19,6 @@ namespace Service.UserService
         Task<ServiceResult> AssignRolesToUserAsync(Guid userId, List<Guid> roleIds);
         Task<ServiceResult> CreateUserAndLocalAuthAsync(User newUser, LocalAuthentication newLocalAuth);
         Task<ServiceResult> CreateUserAndSocialAuthAsync(User newUser, SocialAuthentication newSocialAuth);
+        Task<ServiceResult<int>> GetUserLevelAsync(Guid userId);
     }
 }

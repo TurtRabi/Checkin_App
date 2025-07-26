@@ -21,146 +21,105 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+        public async Task<ActionResult<ServiceResult<LoginResponseDto>>> Login([FromBody] LoginRequestDto request)
         {
-            try
+            var response = await _authenticationService.LoginAsync(request);
+            if (response.IsSuccess)
             {
-                var response = await _authenticationService.LoginAsync(request);
                 return Ok(response);
             }
-            catch (Exception ex)
-            {
-                // Trong môi trường thực tế, nên trả về lỗi cụ thể hơn và log lỗi
-                return BadRequest(new { message = ex.Message });
-            }
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
+        public async Task<ActionResult<ServiceResult<LoginResponseDto>>> Register([FromBody] RegisterRequestDto request)
         {
-            try
+            var response = await _authenticationService.RegisterAsync(request);
+            if (response.IsSuccess)
             {
-                var response = await _authenticationService.RegisterAsync(request);
                 return Ok(response);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
+        public async Task<ActionResult<ServiceResult<LoginResponseDto>>> RefreshToken([FromBody] RefreshTokenRequestDto request)
         {
-            try
+            var response = await _authenticationService.RefreshTokenAsync(request.RefreshToken);
+            if (response.IsSuccess)
             {
-                var response = await _authenticationService.RefreshTokenAsync(request.RefreshToken);
                 return Ok(response);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpPost("send-otp")]
-        public async Task<IActionResult> SendOtp([FromBody] OtpSendRequestDto request)
+        public async Task<ActionResult<ServiceResult>> SendOtp([FromBody] OtpSendRequestDto request)
         {
-            try
+            var result = await _authenticationService.SendOtpAsync(request);
+            if (result.IsSuccess)
             {
-                var result = await _authenticationService.SendOtpAsync(request);
-                if (result.Succeeded)
-                {
-                    return Ok(new { message = result.Message });
-                }
-                return BadRequest(new { errorCode = result.ErrorCode, message = result.Message });
+                return Ok(result);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpPost("verify-otp")]
-        public async Task<IActionResult> VerifyOtp([FromBody] OtpVerifyRequestDto request)
+        public async Task<ActionResult<ServiceResult>> VerifyOtp([FromBody] OtpVerifyRequestDto request)
         {
-            try
+            var result = await _authenticationService.VerifyOtpAsync(request);
+            if (result.IsSuccess)
             {
-                var result = await _authenticationService.VerifyOtpAsync(request);
-                if (result.Succeeded)
-                {
-                    return Ok(new { message = result.Message });
-                }
-                return BadRequest(new { errorCode = result.ErrorCode, message = result.Message });
+                return Ok(result);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpPost("social-login")]
-        public async Task<IActionResult> SocialLogin([FromBody] SocialLoginRequestDto request)
+        public async Task<ActionResult<ServiceResult<LoginResponseDto>>> SocialLogin([FromBody] SocialLoginRequestDto request)
         {
-            try
+            var response = await _authenticationService.SocialLoginAsync(request);
+            if (response.IsSuccess)
             {
-                var response = await _authenticationService.SocialLoginAsync(request);
                 return Ok(response);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            return StatusCode(response.StatusCode, response);
         }
 
         [Authorize]
         [HttpPost("link-social")]
-        public async Task<IActionResult> LinkSocialAccount([FromBody] LinkSocialAccountRequestDto request)
+        public async Task<ActionResult<ServiceResult>> LinkSocialAccount([FromBody] LinkSocialAccountRequestDto request)
         {
-            try
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
             {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
-                {
-                    return Unauthorized(new { message = "Không thể xác định người dùng." });
-                }
+                return Unauthorized(ServiceResult.Fail("User not authenticated or invalid user ID.", StatusCodes.Status401Unauthorized));
+            }
 
-                var result = await _authenticationService.LinkSocialAccountAsync(userId, request);
-                if (result.Succeeded)
-                {
-                    return Ok(new { message = result.Message });
-                }
-                return BadRequest(new { errorCode = result.ErrorCode, message = result.Message });
-            }
-            catch (Exception ex)
+            var result = await _authenticationService.LinkSocialAccountAsync(userId, request);
+            if (result.IsSuccess)
             {
-                return BadRequest(new { message = ex.Message });
+                return Ok(result);
             }
+            return StatusCode(result.StatusCode, result);
         }
 
         [Authorize]
         [HttpPost("unlink-social")]
-        public async Task<IActionResult> UnlinkSocialAccount([FromBody] UnlinkSocialAccountRequestDto request)
+        public async Task<ActionResult<ServiceResult>> UnlinkSocialAccount([FromBody] UnlinkSocialAccountRequestDto request)
         {
-            try
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
             {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
-                {
-                    return Unauthorized(new { message = "Không thể xác định người dùng." });
-                }
+                return Unauthorized(ServiceResult.Fail("User not authenticated or invalid user ID.", StatusCodes.Status401Unauthorized));
+            }
 
-                var result = await _authenticationService.UnlinkSocialAccountAsync(userId, request);
-                if (result.Succeeded)
-                {
-                    return Ok(new { message = result.Message });
-                }
-                return BadRequest(new { errorCode = result.ErrorCode, message = result.Message });
-            }
-            catch (Exception ex)
+            var result = await _authenticationService.UnlinkSocialAccountAsync(userId, request);
+            if (result.IsSuccess)
             {
-                return BadRequest(new { message = ex.Message });
+                return Ok(result);
             }
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

@@ -1,7 +1,20 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{54D0D774-4C75-4A38-AF81-C7AA8B6911D5}|Common\\Common.csproj|e:\\appgooglemap\\checkin_app_be\\checkinappbe.api\\common\\common.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{54D0D774-4C75-4A38-AF81-C7AA8B6911D5}|Common\\Common.csproj|solutionrelative:common\\common.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CCE62AAC-59F9-40A0-A629-A61DC6AA0A11}|Checkin_App_API\\Checkin_App_API.csproj|e:\\appgooglemap\\checkin_app_be\\checkinappbe.api\\checkin_app_api\\controllers\\badgecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CCE62AAC-59F9-40A0-A629-A61DC6AA0A11}|Checkin_App_API\\Checkin_App_API.csproj|solutionrelative:checkin_app_api\\controllers\\badgecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{54D0D774-4C75-4A38-AF81-C7AA8B6911D5}|Common\\Common.csproj|e:\\appgooglemap\\checkin_app_be\\checkinappbe.api\\common\\serviceresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{54D0D774-4C75-4A38-AF81-C7AA8B6911D5}|Common\\Common.csproj|solutionrelative:common\\serviceresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -18,6 +31,45 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Common",
+              "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Common\\Common.csproj",
+              "RelativeDocumentMoniker": "Common\\Common.csproj",
+              "ToolTip": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Common\\Common.csproj",
+              "RelativeToolTip": "Common\\Common.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-07-26T16:20:54.911Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "BadgeController.cs",
+              "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Checkin_App_API\\Controllers\\BadgeController.cs",
+              "RelativeDocumentMoniker": "Checkin_App_API\\Controllers\\BadgeController.cs",
+              "ToolTip": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Checkin_App_API\\Controllers\\BadgeController.cs",
+              "RelativeToolTip": "Checkin_App_API\\Controllers\\BadgeController.cs",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAlwCAAAABPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-26T16:03:53.6Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ServiceResult.cs",
+              "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Common\\ServiceResult.cs",
+              "RelativeDocumentMoniker": "Common\\ServiceResult.cs",
+              "ToolTip": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Common\\ServiceResult.cs",
+              "RelativeToolTip": "Common\\ServiceResult.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-26T16:03:37.149Z",
+              "EditorCaption": ""
             }
           ]
         }

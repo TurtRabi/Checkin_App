@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
-#nullable disable
+#nullable enable
 
 namespace Repository.Models
 {
@@ -16,17 +16,19 @@ namespace Repository.Models
             UserMissions = new HashSet<UserMission>();
             UserRoles = new HashSet<UserRole>();
             UserTreasures = new HashSet<UserTreasure>();
+            UserSessions = new HashSet<UserSession>();
         }
 
-        public Guid UserId { get; set; }
+        public Guid Id { get; set; }
         public required string UserName { get; set; }
-        public string DisplayName { get; set; }
+        public required string DisplayName { get; set; }
         public string? Email { get; set; }
         public string? ProfilePictureUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public int Points { get; set; } = 0;
 
-        public virtual LocalAuthentication LocalAuthentication { get; set; }
+        public virtual LocalAuthentication? LocalAuthentication { get; set; }
         public virtual ICollection<LandmarkVisit> LandmarkVisits { get; set; }
         public virtual ICollection<SocialAuthentication> SocialAuthentications { get; set; }
         public virtual ICollection<StressLog> StressLogs { get; set; }

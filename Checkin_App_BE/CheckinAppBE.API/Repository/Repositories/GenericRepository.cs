@@ -25,10 +25,9 @@ namespace Repository.Repositories
             await _dbSet.AddRangeAsync(entities);
         }
 
-        public async Task DeleteAsync(T entity)
+        public void Delete(T entity)
         {
             _dbSet.Remove(entity);
-            await Task.CompletedTask;
         }
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
@@ -36,7 +35,7 @@ namespace Repository.Repositories
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
-        public async Task<IEnumerable<T>> GetAll()
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
         }
@@ -44,6 +43,26 @@ namespace Repository.Repositories
         public async Task<T?> GetByIdAsync(Guid id)
         {
             return await _dbSet.FindAsync(id);
+        }
+
+        public async Task<IEnumerable<T>> GetByConditionAsync(Expression<Func<T, bool>> expression, string includeProperties = "")
+        {
+            IQueryable<T> query = _dbSet;
+            foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProperty);
+            }
+            return await query.Where(expression).ToListAsync();
+        }
+
+        public async Task<T?> GetSingleByConditionAsync(Expression<Func<T, bool>> expression, string includeProperties = "")
+        {
+            IQueryable<T> query = _dbSet;
+            foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProperty);
+            }
+            return await query.SingleOrDefaultAsync(expression);
         }
 
         public async Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate)

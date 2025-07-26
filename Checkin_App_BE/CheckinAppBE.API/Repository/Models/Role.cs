@@ -12,7 +12,7 @@ namespace Repository.Models
             UserRoles = new HashSet<UserRole>();
         }
 
-        public Guid RoleId { get; set; }
+        public Guid Id { get; set; }
         public string RoleName { get; set; }
 
         public virtual ICollection<UserRole> UserRoles { get; set; }

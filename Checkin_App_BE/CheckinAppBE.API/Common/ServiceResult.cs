@@ -1,20 +1,34 @@
-
 namespace Common
 {
     public class ServiceResult
     {
-        public bool Succeeded { get; set; }
-        public string? Message { get; set; }
-        public string? ErrorCode { get; set; }
+        public bool IsSuccess { get; set; }
+        public string Message { get; set; }
+        public int StatusCode { get; set; }
 
-        public static ServiceResult Success(string? message = null)
+        public static ServiceResult Success(string message = "Operation successful", int statusCode = 200)
         {
-            return new ServiceResult { Succeeded = true, Message = message };
+            return new ServiceResult { IsSuccess = true, Message = message, StatusCode = statusCode };
         }
 
-        public static ServiceResult Failed(string errorCode, string message)
+        public static ServiceResult Fail(string message = "Operation failed", int statusCode = 400)
         {
-            return new ServiceResult { Succeeded = false, ErrorCode = errorCode, Message = message };
+            return new ServiceResult { IsSuccess = false, Message = message, StatusCode = statusCode };
+        }
+    }
+
+    public class ServiceResult<T> : ServiceResult
+    {
+        public T Data { get; set; }
+
+        public static ServiceResult<T> Success(T data, string message = "Operation successful", int statusCode = 200)
+        {
+            return new ServiceResult<T> { IsSuccess = true, Data = data, Message = message, StatusCode = statusCode };
+        }
+
+        public new static ServiceResult<T> Fail(string message = "Operation failed", int statusCode = 400)
+        {
+            return new ServiceResult<T> { IsSuccess = false, Message = message, StatusCode = statusCode };
         }
     }
 }

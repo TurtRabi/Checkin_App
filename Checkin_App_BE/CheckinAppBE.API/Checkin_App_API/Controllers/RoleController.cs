@@ -19,54 +19,58 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllRoles([FromQuery] RoleFilterRequestDto filter)
+        public async Task<ActionResult<ServiceResult<IEnumerable<RoleResponseDto>>>> GetAllRoles([FromQuery] RoleFilterRequestDto filter)
         {
             var roles = await _roleService.GetAllRolesAsync(filter);
-            return Ok(roles);
+            if (roles.IsSuccess)
+            {
+                return Ok(roles);
+            }
+            return StatusCode(roles.StatusCode, roles);
         }
 
         [HttpGet("{roleId}")]
-        public async Task<IActionResult> GetRoleById(Guid roleId)
+        public async Task<ActionResult<ServiceResult<RoleResponseDto>>> GetRoleById(Guid roleId)
         {
             var role = await _roleService.GetRoleByIdAsync(roleId);
-            if (role == null)
+            if (role.IsSuccess)
             {
-                return NotFound(new { message = "Vai trò không tồn tại." });
+                return Ok(role);
             }
-            return Ok(role);
+            return StatusCode(role.StatusCode, role);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRole([FromBody] RoleCreateRequestDto request)
+        public async Task<ActionResult<ServiceResult>> CreateRole([FromBody] RoleCreateRequestDto request)
         {
             var result = await _roleService.CreateRoleAsync(request);
-            if (result.Succeeded)
+            if (result.IsSuccess)
             {
-                return Ok(new { message = result.Message });
+                return Ok(result);
             }
-            return BadRequest(new { errorCode = result.ErrorCode, message = result.Message });
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpPut("{roleId}")]
-        public async Task<IActionResult> UpdateRole(Guid roleId, [FromBody] RoleUpdateRequestDto request)
+        public async Task<ActionResult<ServiceResult>> UpdateRole(Guid roleId, [FromBody] RoleUpdateRequestDto request)
         {
             var result = await _roleService.UpdateRoleAsync(roleId, request);
-            if (result.Succeeded)
+            if (result.IsSuccess)
             {
-                return Ok(new { message = result.Message });
+                return Ok(result);
             }
-            return BadRequest(new { errorCode = result.ErrorCode, message = result.Message });
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpDelete("{roleId}")]
-        public async Task<IActionResult> DeleteRole(Guid roleId)
+        public async Task<ActionResult<ServiceResult>> DeleteRole(Guid roleId)
         {
             var result = await _roleService.DeleteRoleAsync(roleId);
-            if (result.Succeeded)
+            if (result.IsSuccess)
             {
-                return Ok(new { message = result.Message });
+                return Ok(result);
             }
-            return BadRequest(new { errorCode = result.ErrorCode, message = result.Message });
+            return StatusCode(result.StatusCode, result);
         }
     }
 }
