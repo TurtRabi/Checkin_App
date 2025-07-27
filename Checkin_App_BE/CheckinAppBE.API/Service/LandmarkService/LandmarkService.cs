@@ -126,5 +126,57 @@ namespace Service.LandmarkService
             await _unitOfWork.CommitAsync();
             return ServiceResult<bool>.Success(true);
         }
+
+        public async Task<ServiceResult<IEnumerable<LandmarkResponseDto>>> GetPendingLandmarksAsync()
+        {
+            var pendingLandmarks = await _landmarkRepository.GetByConditionAsync(l => l.Status == "Pending");
+            if (pendingLandmarks == null || !pendingLandmarks.Any())
+            {
+                return ServiceResult<IEnumerable<LandmarkResponseDto>>.Fail("No pending landmarks found.", 404);
+            }
+            var landmarkDtos = pendingLandmarks.Select(l => new LandmarkResponseDto
+            {
+                Id = l.Id,
+                Name = l.Name,
+                Description = l.Description,
+                Latitude = l.Latitude,
+                Longitude = l.Longitude,
+                Address = l.Address,
+                ImageUrl = l.ImageUrl,
+                Status = l.Status
+            });
+
+            return ServiceResult<IEnumerable<LandmarkResponseDto>>.Success(landmarkDtos);
+        }
+
+        public async Task<ServiceResult> ApproveLandmarkAsync(Guid landmarkId)
+        {
+            var getPendingLandmarks = await _landmarkRepository.GetByIdAsync(landmarkId);
+            if (getPendingLandmarks == null || getPendingLandmarks.Status != "Pending")
+            {
+                return ServiceResult.Fail("Landmark not found or not pending.", 404);
+            }
+            getPendingLandmarks.Status = "Approved";
+            _landmarkRepository.Update(getPendingLandmarks);
+            await _unitOfWork.CommitAsync();
+
+            
+            return ServiceResult.Success("sucessfull");
+        }
+
+        public async Task<ServiceResult> RejectLandmarkAsync(Guid landmarkId)
+        {
+            var getPendingLandmarks = await _landmarkRepository.GetByIdAsync(landmarkId);
+            if (getPendingLandmarks == null || getPendingLandmarks.Status != "Pending")
+            {
+                return ServiceResult.Fail("Landmark not found or not pending.", 404);
+            }
+            getPendingLandmarks.Status = "Rejected";
+            _landmarkRepository.Update(getPendingLandmarks);
+            await _unitOfWork.CommitAsync();
+
+            return ServiceResult.Success("sucessfull");
+
+        }
     }
 }
