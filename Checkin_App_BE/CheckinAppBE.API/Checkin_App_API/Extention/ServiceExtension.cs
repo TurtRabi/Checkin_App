@@ -1,14 +1,16 @@
 using Service.AuthenticationService;
 using Service.EmailService;
-using Service.UserService;
-using Service.RoleService;
 using Service.LandmarkService;
+using Service.RoleService;
+using Service.UserService;
+using Service.AdminService;
 using Service.LandmarkVisitService;
 using Service.BadgeService;
 using Service.MissionService;
 using Service.TreasureService;
 using Service.UserTreasureService;
 using Service.StressLogService;
+using Service.NotificationService;
 
 namespace API_UsePrevention.Extensions
 {
@@ -27,6 +29,8 @@ namespace API_UsePrevention.Extensions
             services.AddScoped<ITreasureService, TreasureService>();
             services.AddScoped<IUserTreasureService, UserTreasureService>();
             services.AddScoped<IStressLogService, StressLogService>();
+            services.AddScoped<IAdminService, AdminService>();
+            services.AddHttpClient<IGoNotificationClientService, GoNotificationClientService>();
 
             return services;
         }

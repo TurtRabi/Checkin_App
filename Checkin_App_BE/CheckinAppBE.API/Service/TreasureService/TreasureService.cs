@@ -4,6 +4,7 @@ using Dto.Treasure;
 using Repository.Models;
 using Repository.UWO;
 using Service.UserService;
+using Service.NotificationService;
 
 namespace Service.TreasureService
 {
@@ -12,12 +13,14 @@ namespace Service.TreasureService
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
+        private readonly IGoNotificationClientService _goNotificationClientService;
 
-        public TreasureService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService)
+        public TreasureService(IUnitOfWork unitOfWork, IMapper mapper, IUserService userService, IGoNotificationClientService goNotificationClientService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userService = userService;
+            _goNotificationClientService = goNotificationClientService;
         }
 
         public async Task<ServiceResult<IEnumerable<TreasureResponseDto>>> GetAllTreasuresAsync()
@@ -123,6 +126,14 @@ namespace Service.TreasureService
 
             await _unitOfWork.CommitAsync();
 
+            // Send notification for treasure collected
+            var notificationMessage = $"Chúc mừng {user.DisplayName}! Bạn đã mở kho báu '{selectedTreasure.Name}' và nhận được {selectedTreasure.Coin} xu và {selectedTreasure.ExperiencePoints} điểm kinh nghiệm.";
+            var result = await _goNotificationClientService.SendNotificationToGOServiceAsync($"user.{user.UserId}", notificationMessage);
+            if (!result.IsSuccess)
+            {
+                Console.WriteLine($"Lỗi gửi thông báo kho báu hàng ngày cho user {user.UserId}: {result.Message}");
+            }
+
             return ServiceResult<OpenTreasureResponseDto>.Success(new OpenTreasureResponseDto
             {
                 UserTreasureId = userTreasure.Id,
@@ -184,6 +195,14 @@ namespace Service.TreasureService
             _unitOfWork.UserRepository.Update(_mapper.Map<User>(user)); // Assuming UserRepository is available and UserDto can be mapped back to User model
 
             await _unitOfWork.CommitAsync();
+
+            // Send notification for treasure collected
+            var notificationMessage = $"Chúc mừng {user.DisplayName}! Bạn đã mở kho báu đặc biệt '{specialTreasure.Name}' và nhận được {specialTreasure.Coin} xu và {specialTreasure.ExperiencePoints} điểm kinh nghiệm.";
+            var result = await _goNotificationClientService.SendNotificationToGOServiceAsync($"user.{user.UserId}", notificationMessage);
+            if (!result.IsSuccess)
+            {
+                Console.WriteLine($"Lỗi gửi thông báo kho báu đặc biệt cho user {user.UserId}: {result.Message}");
+            }
 
             return ServiceResult<OpenTreasureResponseDto>.Success(new OpenTreasureResponseDto
             {

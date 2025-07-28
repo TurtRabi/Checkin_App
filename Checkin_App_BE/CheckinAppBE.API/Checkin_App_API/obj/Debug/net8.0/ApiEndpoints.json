@@ -1,5 +1,90 @@
 [
   {
+    "ContainingType": "Checkin_App_API.Controllers.AdminController",
+    "Method": "ApproveLandmark",
+    "RelativePath": "api/Admin/landmark/{landmarkId}/approve",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "landmarkId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Checkin_App_API.Controllers.AdminController",
+    "Method": "RejectLandmark",
+    "RelativePath": "api/Admin/landmark/{landmarkId}/reject",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "landmarkId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Checkin_App_API.Controllers.AdminController",
+    "Method": "AssignRole",
+    "RelativePath": "api/Admin/user/{userId}/assign-role",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      },
+      {
+        "Name": "roleName",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Checkin_App_API.Controllers.AdminController",
+    "Method": "BanUser",
+    "RelativePath": "api/Admin/user/{userId}/ban",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Checkin_App_API.Controllers.AdminController",
+    "Method": "UnbanUser",
+    "RelativePath": "api/Admin/user/{userId}/unban",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Guid",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Checkin_App_API.Controllers.AuthController",
     "Method": "LinkSocialAccount",
     "RelativePath": "api/Auth/link-social",

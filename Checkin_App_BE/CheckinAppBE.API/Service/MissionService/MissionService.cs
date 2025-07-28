@@ -2,6 +2,7 @@ using Common;
 using Dto.Mission;
 using Repository.Models;
 using Repository.UWO;
+using Service.NotificationService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,12 @@ namespace Service.MissionService
     public class MissionService : IMissionService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IGoNotificationClientService _goNotificationClientService;
 
-        public MissionService(IUnitOfWork unitOfWork)
+        public MissionService(IUnitOfWork unitOfWork, IGoNotificationClientService goNotificationClientService)
         {
             _unitOfWork = unitOfWork;
+            _goNotificationClientService = goNotificationClientService;
         }
 
         public async Task<ServiceResult<IEnumerable<MissionResponseDto>>> GetAllMissionsAsync()
@@ -154,6 +157,14 @@ namespace Service.MissionService
                 user.Points += mission.PointsAwarded;
                 _unitOfWork.UserRepository.Update(user);
                 await _unitOfWork.CommitAsync();
+
+                // Send notification for mission completion
+                var notificationMessage = $"Chúc mừng {user.DisplayName}! Bạn đã hoàn thành nhiệm vụ '{mission.Title}' và nhận được {mission.PointsAwarded} điểm.";
+                var result = await _goNotificationClientService.SendNotificationToGOServiceAsync($"user.{user.Id}", notificationMessage);
+                if (!result.IsSuccess)
+                {
+                    Console.WriteLine($"Lỗi gửi thông báo nhiệm vụ cho user {user.Id}: {result.Message}");
+                }
             }
 
             var userMissionDto = new UserMissionResponseDto

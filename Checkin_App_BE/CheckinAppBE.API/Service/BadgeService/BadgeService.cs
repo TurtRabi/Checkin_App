@@ -2,6 +2,7 @@ using Common;
 using Dto.Badge;
 using Repository.Models;
 using Repository.UWO;
+using Service.NotificationService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,12 @@ namespace Service.BadgeService
     public class BadgeService : IBadgeService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IGoNotificationClientService _goNotificationClientService;
 
-        public BadgeService(IUnitOfWork unitOfWork)
+        public BadgeService(IUnitOfWork unitOfWork, IGoNotificationClientService goNotificationClientService)
         {
             _unitOfWork = unitOfWork;
+            _goNotificationClientService = goNotificationClientService;
         }
 
         public async Task<ServiceResult<IEnumerable<BadgeResponseDto>>> GetAllBadgesAsync()
@@ -107,6 +110,15 @@ namespace Service.BadgeService
             _unitOfWork.UserRepository.Update(user);
 
             await _unitOfWork.CommitAsync();
+
+            // Send notification for badge awarded
+            var notificationMessage = $"Chúc mừng {user.DisplayName}! Bạn đã nhận được huy hiệu '{badge.Name}' và nhận được {badge.PointsAwarded} điểm.";
+            var result = await _goNotificationClientService.SendNotificationToGOServiceAsync($"user.{user.Id}", notificationMessage);
+            if (!result.IsSuccess)
+            {
+                // Xử lý lỗi nếu gửi thông báo thất bại (ví dụ: log lỗi)
+                Console.WriteLine($"Lỗi gửi thông báo huy hiệu cho user {user.Id}: {result.Message}");
+            }
 
             var userBadgeDto = new UserBadgeResponseDto
             {

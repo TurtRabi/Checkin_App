@@ -4,6 +4,7 @@ using Repository.Models;
 using Repository.Repositories;
 using Repository.UWO;
 using Service.BadgeService;
+using Service.NotificationService;
 
 namespace Service.LandmarkVisitService
 {
@@ -12,12 +13,14 @@ namespace Service.LandmarkVisitService
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILandmarkVisitRepository _landmarkVisitRepository;
         private readonly IBadgeService _badgeService;
+        private readonly IGoNotificationClientService _goNotificationClientService;
 
-        public LandmarkVisitService(IUnitOfWork unitOfWork, ILandmarkVisitRepository landmarkVisitRepository, IBadgeService badgeService)
+        public LandmarkVisitService(IUnitOfWork unitOfWork, ILandmarkVisitRepository landmarkVisitRepository, IBadgeService badgeService, IGoNotificationClientService goNotificationClientService)
         {
             _unitOfWork = unitOfWork;
             _landmarkVisitRepository = landmarkVisitRepository;
             _badgeService = badgeService;
+            _goNotificationClientService = goNotificationClientService;
         }
 
         public async Task<ServiceResult<LandmarkVisitResponseDto>> CreateLandmarkVisitAsync(Guid userId, LandmarkVisitCreateRequestDto request)
@@ -37,6 +40,19 @@ namespace Service.LandmarkVisitService
 
             // Logic to award badges based on check-in count
             await AwardBadgesBasedOnCheckinCount(userId);
+
+            // Send notification for successful check-in
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+            var landmark = await _unitOfWork.LandmarkRepository.GetByIdAsync(request.LandmarkId);
+            if (user != null && landmark != null)
+            {
+                var notificationMessage = $"Chúc mừng {user.DisplayName}! Bạn đã check-in thành công tại {landmark.Name}.";
+                var result = await _goNotificationClientService.SendNotificationToGOServiceAsync($"user.{user.Id}", notificationMessage);
+                if (!result.IsSuccess)
+                {
+                    Console.WriteLine($"Lỗi gửi thông báo check-in cho user {user.Id}: {result.Message}");
+                }
+            }
 
             var landmarkVisitDto = new LandmarkVisitResponseDto
             {
