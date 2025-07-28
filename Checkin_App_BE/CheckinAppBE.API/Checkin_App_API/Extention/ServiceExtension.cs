@@ -1,5 +1,4 @@
 using Service.AuthenticationService;
-using Service.EmailService;
 using Service.LandmarkService;
 using Service.RoleService;
 using Service.UserService;
@@ -21,7 +20,7 @@ namespace API_UsePrevention.Extensions
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
-            services.AddScoped<IEmailService, EmailService>();
+            services.AddHttpClient<IGoEmailClientService, GoEmailClientService>(); // New Email Service
             services.AddScoped<ILandmarkService, LandmarkService>();
             services.AddScoped<ILandmarkVisitService, LandmarkVisitService>();
             services.AddScoped<IBadgeService, BadgeService>();

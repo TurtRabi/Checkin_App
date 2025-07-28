@@ -10,9 +10,10 @@ using Common;
 using Service.Redis;
 using BCrypt.Net;
 using Repository.Models;
-using Service.EmailService;
+using Service.NotificationService; // Changed from Service.EmailService
 using Dto;
 using Service.UserService;
+using Dto.Notification; // Thêm dòng này
 
 namespace Service.AuthenticationService
 {
@@ -21,15 +22,15 @@ namespace Service.AuthenticationService
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
         private readonly IRedisService _redisService;
-        private readonly IEmailService _emailService;
+        private readonly IGoEmailClientService _goEmailClientService; // Changed from IEmailService
         private readonly IUserService _userService;
 
-        public AuthenticationService(IUnitOfWork unitOfWork, IConfiguration configuration, IRedisService redisService, IEmailService emailService, IUserService userService)
+        public AuthenticationService(IUnitOfWork unitOfWork, IConfiguration configuration, IRedisService redisService, IGoEmailClientService goEmailClientService, IUserService userService) // Changed constructor
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _redisService = redisService;
-            _emailService = emailService;
+            _goEmailClientService = goEmailClientService; // Changed assignment
             _userService = userService;
         }
 
@@ -319,14 +320,24 @@ namespace Service.AuthenticationService
             {
                 string subject = "Mã OTP của bạn";
                 string message = $"Mã OTP của bạn là: {otpCode}";
-                await _emailService.SendEmailAsync(request.Email, subject, message);
-                return ServiceResult.Success("Mã OTP đã được gửi đến email của bạn.");
+                var emailRequest = new GoEmailRequestDto
+                {
+                    To = request.Email,
+                    Subject = subject,
+                    Body = message
+                };
+                var result = await _goEmailClientService.SendEmailToGOServiceAsync(emailRequest);
+                if (result.IsSuccess)
+                {
+                    return ServiceResult.Success("Mã OTP đã được gửi đến email của bạn.");
+                }
+                return ServiceResult.Fail($"Đã xảy ra lỗi khi gửi email: {result.Message}", result.StatusCode);
             }
             catch (Exception ex)
             {
                 // Log the exception (using a proper logging framework is recommended)
-                Console.WriteLine($"Lỗi gửi email: {ex.Message}");
-                return ServiceResult.Fail("Đã xảy ra lỗi khi gửi email.", 500);
+                Console.WriteLine($"Lỗi không xác định khi gửi OTP: {ex.Message}");
+                return ServiceResult.Fail("Đã xảy ra lỗi không xác định khi gửi OTP.", 500);
             }
         }
 

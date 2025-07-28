@@ -7,13 +7,21 @@ import (
 	"os"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/joho/godotenv" // Thêm import này
 
 	app "gonotificationservice/internal/application"
 	delivery "gonotificationservice/internal/delivery/http"
-	infra "gonotificationservice/internal/infrastructure/redis"
+	infraRedis "gonotificationservice/internal/infrastructure/redis"
+	infraSmtp "gonotificationservice/internal/infrastructure/smtp"
 )
 
 func main() {
+	// Tải biến môi trường từ tệp .env
+	err := godotenv.Load()
+	if err != nil {
+		log.Printf("Không tìm thấy tệp .env hoặc lỗi khi tải: %v. Tiếp tục với biến môi trường hệ thống.", err)
+	}
+
 	ctx := context.Background()
 
 	// Cấu hình Redis
@@ -31,19 +39,26 @@ func main() {
 	})
 
 	// Ping Redis để kiểm tra kết nối
-	_, err := rdb.Ping(ctx).Result()
+	_, err = rdb.Ping(ctx).Result()
 	if err != nil {
 		log.Fatalf("Không thể kết nối đến Redis: %v", err)
 	}
 	log.Printf("Đã kết nối đến Redis tại %s", redisAddr)
 
+	// Khởi tạo SMTP Sender
+	smtpSender, err := infraSmtp.NewSmtpSender()
+	if err != nil {
+		log.Fatalf("Không thể khởi tạo SMTP Sender: %v", err)
+	}
+
 	// Khởi tạo các thành phần theo kiến trúc sạch
-	redisSender := infra.NewRedisSender(rdb)
-	notificationService := app.NewNotificationService(redisSender)
+	redisSender := infraRedis.NewRedisSender(rdb)
+	notificationService := app.NewNotificationService(redisSender, smtpSender)
 	notificationHandler := delivery.NewNotificationHandler(notificationService)
 
 	// Cấu hình router HTTP
 	http.HandleFunc("/send", notificationHandler.SendNotification)
+	http.HandleFunc("/send-email", notificationHandler.SendEmail) // Thêm endpoint gửi email
 
 	// Cấu hình cổng lắng nghe
 	port := os.Getenv("PORT")

@@ -60,7 +60,7 @@
               "RelativeDocumentMoniker": "Checkin_App_API\\appsettings.json",
               "ToolTip": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Checkin_App_API\\appsettings.json",
               "RelativeToolTip": "Checkin_App_API\\appsettings.json",
-              "ViewState": "AgIAABEAAAAAAAAAAAAAABgAAACWAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2025-07-28T05:17:17.316Z",
               "EditorCaption": ""
@@ -68,15 +68,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Checkin_App_API",
+              "Title": "Checkin_App_API.csproj",
               "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Checkin_App_API\\Checkin_App_API.csproj",
               "RelativeDocumentMoniker": "Checkin_App_API\\Checkin_App_API.csproj",
               "ToolTip": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Checkin_App_API\\Checkin_App_API.csproj",
               "RelativeToolTip": "Checkin_App_API\\Checkin_App_API.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-07-28T05:17:15.493Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-28T05:17:15.493Z"
             },
             {
               "$type": "Document",
@@ -88,8 +87,7 @@
               "RelativeToolTip": "Service\\NotificationService\\NotificationService.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAAAqwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-28T03:51:48.529Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-28T03:51:48.529Z"
             },
             {
               "$type": "Document",
@@ -101,8 +99,7 @@
               "RelativeToolTip": "Service\\NotificationService\\INotificationService.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-28T03:51:45.292Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-28T03:51:45.292Z"
             },
             {
               "$type": "Document",
@@ -114,8 +111,7 @@
               "RelativeToolTip": "Checkin_App_API\\Controllers\\AdminController.cs",
               "ViewState": "AgIAAA0AAAAAAAAAAAAzwBwAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-28T03:28:16.343Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-28T03:28:16.343Z"
             },
             {
               "$type": "Document",
@@ -139,8 +135,7 @@
               "RelativeToolTip": "Service\\LandmarkService\\LandmarkService.cs",
               "ViewState": "AgIAAKgAAAAAAAAAAAAAwLUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-27T00:59:48.569Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-27T00:59:48.569Z"
             },
             {
               "$type": "Document",

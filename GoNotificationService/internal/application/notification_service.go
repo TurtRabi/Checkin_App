@@ -8,17 +8,24 @@ import (
 )
 
 type notificationService struct {
-	sender ports.NotificationSender
+	notificationSender ports.NotificationSender
+	emailSender        ports.EmailSender
 }
 
-func NewNotificationService(sender ports.NotificationSender) ports.NotificationService {
+func NewNotificationService(notificationSender ports.NotificationSender, emailSender ports.EmailSender) ports.NotificationService {
 	return &notificationService{
-		sender: sender,
+		notificationSender: notificationSender,
+		emailSender:        emailSender,
 	}
 }
 
 func (s *notificationService) SendNotification(ctx context.Context, payload domain.NotificationPayload) error {
 	// Ở đây bạn có thể thêm bất kỳ logic nghiệp vụ nào trước khi gửi
 	// Ví dụ: kiểm tra payload, log, v.v.
-	return s.sender.Send(ctx, payload.Channel, payload.Message)
+	return s.notificationSender.Send(ctx, payload.Channel, payload.Message)
+}
+
+func (s *notificationService) SendEmail(ctx context.Context, payload domain.EmailPayload) error {
+	// Ở đây bạn có thể thêm bất kỳ logic nghiệp vụ nào trước khi gửi email
+	return s.emailSender.SendEmail(ctx, payload.To, payload.Subject, payload.Body)
 }
