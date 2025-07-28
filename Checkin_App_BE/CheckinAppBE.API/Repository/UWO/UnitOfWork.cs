@@ -21,6 +21,8 @@ namespace Repository.UWO
         public IGenericRepository<UserRole> UserRoleRepository { get; }
         public IUserTreasureRepository UserTreasureRepository { get; }
         public IGenericRepository<UserSession> UserSessionRepository { get; }
+        public IRewardCardRepository RewardCardRepository { get; }
+        public IUserRewardCardRepository UserRewardCardRepository { get; }
 
         public UnitOfWork(TravelCardsDBContext context)
         {
@@ -40,6 +42,8 @@ namespace Repository.UWO
             UserRoleRepository = new GenericRepository<UserRole>(_context);
             UserTreasureRepository = new UserTreasureRepository(_context);
             UserSessionRepository = new GenericRepository<UserSession>(_context);
+            RewardCardRepository = new RewardCardRepository(_context);
+            UserRewardCardRepository = new UserRewardCardRepository(_context);
         }
 
 

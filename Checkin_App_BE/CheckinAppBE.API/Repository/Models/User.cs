@@ -17,6 +17,7 @@ namespace Repository.Models
             UserRoles = new HashSet<UserRole>();
             UserTreasures = new HashSet<UserTreasure>();
             UserSessions = new HashSet<UserSession>();
+            UserRewardCards = new HashSet<UserRewardCard>(); // Thêm HashSet mới
         }
 
         public Guid Id { get; set; }
@@ -40,5 +41,6 @@ namespace Repository.Models
         public virtual ICollection<UserRole> UserRoles { get; set; }
         public virtual ICollection<UserTreasure> UserTreasures { get; set; }
         public virtual ICollection<UserSession> UserSessions { get; set; }
+        public virtual ICollection<UserRewardCard> UserRewardCards { get; set; } // Thêm ICollection mới
     }
 }

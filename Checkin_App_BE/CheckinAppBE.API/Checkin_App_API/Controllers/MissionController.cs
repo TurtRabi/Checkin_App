@@ -4,11 +4,13 @@ using Service.MissionService;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Checkin_App_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MissionController : ControllerBase
     {
         private readonly IMissionService _missionService;
@@ -52,6 +54,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpPost("assign")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserMissionResponseDto>> AssignUserMission(Guid userId, Guid missionId)
         {
             var result = await _missionService.AssignUserMissionAsync(userId, missionId);
@@ -74,6 +77,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<MissionResponseDto>> CreateMission([FromBody] MissionCreateRequestDto missionDto)
         {
             var result = await _missionService.CreateMissionAsync(missionDto);
@@ -85,6 +89,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<MissionResponseDto>> UpdateMission([FromBody] MissionUpdateRequestDto missionDto)
         {
             var result = await _missionService.UpdateMissionAsync(missionDto);
@@ -96,6 +101,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<bool>> DeleteMission(Guid id)
         {
             var result = await _missionService.DeleteMissionAsync(id);

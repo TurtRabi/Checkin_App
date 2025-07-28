@@ -15,6 +15,8 @@ namespace API_UsePrevention.Extensions
             services.AddScoped<IMissionRepository, MissionRepository>();
             services.AddScoped<IUserBadgeRepository, UserBadgeRepository>();
             services.AddScoped<IUserMissionRepository, UserMissionRepository>();
+            services.AddScoped<IRewardCardRepository, RewardCardRepository>();
+            services.AddScoped<IUserRewardCardRepository, UserRewardCardRepository>();
             return services;
         }
     }

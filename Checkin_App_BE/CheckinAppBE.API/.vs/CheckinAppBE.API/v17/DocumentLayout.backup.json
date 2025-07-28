@@ -3,12 +3,28 @@
   "WorkspaceRootPath": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{FC3D5209-55C6-472C-A491-639FD5E3866D}|Repository\\Repository.csproj|e:\\appgooglemap\\checkin_app_be\\checkinappbe.api\\repository\\migrations\\travelcardsdbcontextfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FC3D5209-55C6-472C-A491-639FD5E3866D}|Repository\\Repository.csproj|solutionrelative:repository\\migrations\\travelcardsdbcontextfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FC3D5209-55C6-472C-A491-639FD5E3866D}|Repository\\Repository.csproj|e:\\appgooglemap\\checkin_app_be\\checkinappbe.api\\repository\\models\\travelcardsdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FC3D5209-55C6-472C-A491-639FD5E3866D}|Repository\\Repository.csproj|solutionrelative:repository\\models\\travelcardsdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{CCE62AAC-59F9-40A0-A629-A61DC6AA0A11}|Checkin_App_API\\Checkin_App_API.csproj|e:\\appgooglemap\\checkin_app_be\\checkinappbe.api\\checkin_app_api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{CCE62AAC-59F9-40A0-A629-A61DC6AA0A11}|Checkin_App_API\\Checkin_App_API.csproj|solutionrelative:checkin_app_api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{CCE62AAC-59F9-40A0-A629-A61DC6AA0A11}|Checkin_App_API\\Checkin_App_API.csproj|e:\\appgooglemap\\checkin_app_be\\checkinappbe.api\\checkin_app_api\\checkin_app_api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
       "RelativeMoniker": "D:0:0:{CCE62AAC-59F9-40A0-A629-A61DC6AA0A11}|Checkin_App_API\\Checkin_App_API.csproj|solutionrelative:checkin_app_api\\checkin_app_api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FC3D5209-55C6-472C-A491-639FD5E3866D}|Repository\\Repository.csproj|e:\\appgooglemap\\checkin_app_be\\checkinappbe.api\\repository\\migrations\\travelcardsdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FC3D5209-55C6-472C-A491-639FD5E3866D}|Repository\\Repository.csproj|solutionrelative:repository\\migrations\\travelcardsdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FC3D5209-55C6-472C-A491-639FD5E3866D}|Repository\\Repository.csproj|e:\\appgooglemap\\checkin_app_be\\checkinappbe.api\\repository\\models\\treasure.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FC3D5209-55C6-472C-A491-639FD5E3866D}|Repository\\Repository.csproj|solutionrelative:repository\\models\\treasure.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{659B0DE3-7ED9-4829-BAF7-EE832C6569CC}|Service\\Service.csproj|e:\\appgooglemap\\checkin_app_be\\checkinappbe.api\\service\\notificationservice\\notificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -42,7 +58,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -54,32 +70,85 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "TravelCardsDBContextModelSnapshot.cs",
+              "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Repository\\Migrations\\TravelCardsDBContextModelSnapshot.cs",
+              "RelativeDocumentMoniker": "Repository\\Migrations\\TravelCardsDBContextModelSnapshot.cs",
+              "ToolTip": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Repository\\Migrations\\TravelCardsDBContextModelSnapshot.cs",
+              "RelativeToolTip": "Repository\\Migrations\\TravelCardsDBContextModelSnapshot.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-28T06:56:08.189Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "TravelCardsDBContextFactory.cs",
+              "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Repository\\Migrations\\TravelCardsDBContextFactory.cs",
+              "RelativeDocumentMoniker": "Repository\\Migrations\\TravelCardsDBContextFactory.cs",
+              "ToolTip": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Repository\\Migrations\\TravelCardsDBContextFactory.cs",
+              "RelativeToolTip": "Repository\\Migrations\\TravelCardsDBContextFactory.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAqwAkAAABCAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-28T06:54:47.453Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Treasure.cs",
+              "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Repository\\Models\\Treasure.cs",
+              "RelativeDocumentMoniker": "Repository\\Models\\Treasure.cs",
+              "ToolTip": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Repository\\Models\\Treasure.cs",
+              "RelativeToolTip": "Repository\\Models\\Treasure.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-28T06:53:03.83Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "TravelCardsDBContext.cs",
+              "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Repository\\Models\\TravelCardsDBContext.cs",
+              "RelativeDocumentMoniker": "Repository\\Models\\TravelCardsDBContext.cs",
+              "ToolTip": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Repository\\Models\\TravelCardsDBContext.cs",
+              "RelativeToolTip": "Repository\\Models\\TravelCardsDBContext.cs",
+              "ViewState": "AgIAAKsBAAAAAAAAAAAqwMMBAABdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-28T06:51:23.856Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "appsettings.json",
               "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Checkin_App_API\\appsettings.json",
               "RelativeDocumentMoniker": "Checkin_App_API\\appsettings.json",
               "ToolTip": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Checkin_App_API\\appsettings.json",
               "RelativeToolTip": "Checkin_App_API\\appsettings.json",
-              "ViewState": "AgIAABEAAAAAAAAAAAAAABgAAACWAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2025-07-28T05:17:17.316Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "Checkin_App_API.csproj",
               "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Checkin_App_API\\Checkin_App_API.csproj",
               "RelativeDocumentMoniker": "Checkin_App_API\\Checkin_App_API.csproj",
               "ToolTip": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Checkin_App_API\\Checkin_App_API.csproj",
               "RelativeToolTip": "Checkin_App_API\\Checkin_App_API.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAQwBEAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-07-28T05:17:15.493Z"
+              "WhenOpened": "2025-07-28T05:17:15.493Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "NotificationService.cs",
               "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Service\\NotificationService\\NotificationService.cs",
               "RelativeDocumentMoniker": "Service\\NotificationService\\NotificationService.cs",
@@ -87,11 +156,12 @@
               "RelativeToolTip": "Service\\NotificationService\\NotificationService.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAAAqwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-28T03:51:48.529Z"
+              "WhenOpened": "2025-07-28T03:51:48.529Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 7,
               "Title": "INotificationService.cs",
               "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Service\\NotificationService\\INotificationService.cs",
               "RelativeDocumentMoniker": "Service\\NotificationService\\INotificationService.cs",
@@ -103,7 +173,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 8,
               "Title": "AdminController.cs",
               "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Checkin_App_API\\Controllers\\AdminController.cs",
               "RelativeDocumentMoniker": "Checkin_App_API\\Controllers\\AdminController.cs",
@@ -115,7 +185,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 10,
               "Title": "ILandmarkRepository.cs",
               "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Repository\\Repositories\\ILandmarkRepository.cs",
               "RelativeDocumentMoniker": "Repository\\Repositories\\ILandmarkRepository.cs",
@@ -127,7 +197,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 9,
               "Title": "LandmarkService.cs",
               "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Service\\LandmarkService\\LandmarkService.cs",
               "RelativeDocumentMoniker": "Service\\LandmarkService\\LandmarkService.cs",
@@ -139,7 +209,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 11,
               "Title": "ILandmarkService.cs",
               "DocumentMoniker": "E:\\AppGoogleMap\\Checkin_App_BE\\CheckinAppBE.API\\Service\\LandmarkService\\ILandmarkService.cs",
               "RelativeDocumentMoniker": "Service\\LandmarkService\\ILandmarkService.cs",

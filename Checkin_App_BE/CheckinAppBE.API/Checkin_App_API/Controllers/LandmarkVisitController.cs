@@ -2,22 +2,27 @@ using Common;
 using Dto.LandmarkVisit;
 using Microsoft.AspNetCore.Mvc;
 using Service.LandmarkVisitService;
+using Service.RewardCardService;
 using Service.TreasureService;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Checkin_App_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LandmarkVisitController : ControllerBase
     {
         private readonly ILandmarkVisitService _landmarkVisitService;
         private readonly ITreasureService _treasureService;
+        private readonly IRewardCardService _rewardCardService; // Add this
 
-        public LandmarkVisitController(ILandmarkVisitService landmarkVisitService, ITreasureService treasureService)
+        public LandmarkVisitController(ILandmarkVisitService landmarkVisitService, ITreasureService treasureService, IRewardCardService rewardCardService) // Add this
         {
             _landmarkVisitService = landmarkVisitService;
             _treasureService = treasureService;
+            _rewardCardService = rewardCardService; // Add this
         }
 
         [HttpPost]
@@ -35,7 +40,10 @@ namespace Checkin_App_API.Controllers
                 // Attempt to open special treasure after successful check-in
                 await _treasureService.OpenSpecialTreasureAsync(userId, result.Data.Id);
 
-                return StatusCode(StatusCodes.Status201Created, result);
+                // Attempt to get a random reward card
+                var rewardCardResult = await _rewardCardService.CheckinRandomCard(userId, result.Data.Id);
+
+                return StatusCode(StatusCodes.Status201Created, new { visit = result, rewardCard = rewardCardResult });
             }
             return StatusCode(result.StatusCode, result);
         }

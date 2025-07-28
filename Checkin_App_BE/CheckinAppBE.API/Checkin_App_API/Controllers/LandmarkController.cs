@@ -2,11 +2,13 @@ using Common;
 using Dto.Landmark;
 using Microsoft.AspNetCore.Mvc;
 using Service.LandmarkService;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Checkin_App_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LandmarkController : ControllerBase
     {
         private readonly ILandmarkService _landmarkService;
@@ -39,6 +41,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResult<LandmarkResponseDto>>> CreateLandmark([FromBody] LandmarkCreateRequestDto request)
         {
             var result = await _landmarkService.CreateLandmarkAsync(request);
@@ -50,6 +53,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResult<LandmarkResponseDto>>> UpdateLandmark(Guid id, [FromBody] LandmarkUpdateRequestDto request)
         {
             if (id != request.Id)
@@ -65,6 +69,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResult<bool>>> DeleteLandmark(Guid id)
         {
             var result = await _landmarkService.DeleteLandmarkAsync(id);

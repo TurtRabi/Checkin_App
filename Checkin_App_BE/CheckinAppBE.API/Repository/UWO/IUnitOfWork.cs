@@ -20,6 +20,8 @@ namespace Repository.UWO
         IGenericRepository<UserRole> UserRoleRepository { get; }
         IUserTreasureRepository UserTreasureRepository { get; }
         IGenericRepository<UserSession> UserSessionRepository { get; }
+        IRewardCardRepository RewardCardRepository { get; }
+        IUserRewardCardRepository UserRewardCardRepository { get; }
         Task<int> CommitAsync();
     }
 }

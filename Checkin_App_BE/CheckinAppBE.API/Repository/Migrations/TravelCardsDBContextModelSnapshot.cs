@@ -92,6 +92,9 @@ namespace Repository.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -199,6 +202,50 @@ namespace Repository.Migrations
                     b.ToTable("Missions");
                 });
 
+            modelBuilder.Entity("Repository.Models.RewardCard", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("RewardCardID")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<string>("AnimationType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("AnimationVideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<double>("DropRate")
+                        .HasColumnType("float");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Rarity")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RewardCards");
+                });
+
             modelBuilder.Entity("Repository.Models.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -295,8 +342,14 @@ namespace Repository.Migrations
                         .HasColumnName("TreasureID")
                         .HasDefaultValueSql("(newid())");
 
+                    b.Property<int>("Coin")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ExperiencePoints")
+                        .HasColumnType("int");
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(255)
@@ -316,6 +369,9 @@ namespace Repository.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("TreasureType")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("LandmarkId");
@@ -331,6 +387,9 @@ namespace Repository.Migrations
                         .HasColumnName("UserID")
                         .HasDefaultValueSql("(newid())");
 
+                    b.Property<int>("Coin")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -344,6 +403,12 @@ namespace Repository.Migrations
                     b.Property<string>("Email")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ExperiencePoints")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsBanned")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Points")
                         .HasColumnType("int");
@@ -437,6 +502,36 @@ namespace Repository.Migrations
                     b.HasIndex(new[] { "UserId", "MissionId" }, "IX_UserMissions_User_Mission");
 
                     b.ToTable("UserMissions");
+                });
+
+            modelBuilder.Entity("Repository.Models.UserRewardCard", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("UserRewardCardID")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<DateTime>("CollectedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getutcdate())");
+
+                    b.Property<Guid>("RewardCardId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("RewardCardID");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("UserID");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RewardCardId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRewardCards");
                 });
 
             modelBuilder.Entity("Repository.Models.UserRole", b =>
@@ -641,6 +736,25 @@ namespace Repository.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Repository.Models.UserRewardCard", b =>
+                {
+                    b.HasOne("Repository.Models.RewardCard", "RewardCard")
+                        .WithMany("UserRewardCards")
+                        .HasForeignKey("RewardCardId")
+                        .IsRequired()
+                        .HasConstraintName("FK_UserRewardCards_RewardCards");
+
+                    b.HasOne("Repository.Models.User", "User")
+                        .WithMany("UserRewardCards")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK_UserRewardCards_Users");
+
+                    b.Navigation("RewardCard");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Repository.Models.UserRole", b =>
                 {
                     b.HasOne("Repository.Models.Role", "Role")
@@ -723,6 +837,11 @@ namespace Repository.Migrations
                     b.Navigation("UserMissions");
                 });
 
+            modelBuilder.Entity("Repository.Models.RewardCard", b =>
+                {
+                    b.Navigation("UserRewardCards");
+                });
+
             modelBuilder.Entity("Repository.Models.Role", b =>
                 {
                     b.Navigation("UserRoles");
@@ -746,6 +865,8 @@ namespace Repository.Migrations
                     b.Navigation("UserBadges");
 
                     b.Navigation("UserMissions");
+
+                    b.Navigation("UserRewardCards");
 
                     b.Navigation("UserRoles");
 

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Checkin_App_API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b7293f076ff4397a45c1e7244759865818c5e8d8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e78fbc741f7763d8dac4f359e45b4f3a590dac92")]
 [assembly: System.Reflection.AssemblyProductAttribute("Checkin_App_API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Checkin_App_API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

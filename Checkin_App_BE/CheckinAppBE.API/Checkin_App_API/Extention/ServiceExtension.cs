@@ -10,6 +10,7 @@ using Service.TreasureService;
 using Service.UserTreasureService;
 using Service.StressLogService;
 using Service.NotificationService;
+using Service.RewardCardService;
 
 namespace API_UsePrevention.Extensions
 {
@@ -30,6 +31,7 @@ namespace API_UsePrevention.Extensions
             services.AddScoped<IStressLogService, StressLogService>();
             services.AddScoped<IAdminService, AdminService>();
             services.AddHttpClient<IGoNotificationClientService, GoNotificationClientService>();
+            services.AddScoped<IRewardCardService, RewardCardService>();
 
             return services;
         }

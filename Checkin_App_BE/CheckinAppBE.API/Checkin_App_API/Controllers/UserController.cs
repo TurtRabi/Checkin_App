@@ -4,22 +4,26 @@ using Dto.User;
 using Microsoft.AspNetCore.Authorization;
 using Common;
 using System.Security.Claims;
+using Dto.RewardCard;
+using Service.RewardCardService; // Add this using
 
 namespace Checkin_App_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")] // Only Admin can access User management APIs
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IRewardCardService _rewardCardService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IRewardCardService rewardCardService)
         {
             _userService = userService;
+            _rewardCardService = rewardCardService;
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResult<IEnumerable<UserResponseDto>>>> GetAllUsers([FromQuery] UserFilterRequestDto filter)
         {
             var users = await _userService.GetAllUsersAsync(filter);
@@ -31,6 +35,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpGet("{userId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResult<UserResponseDto>>> GetUserById(Guid userId)
         {
             var user = await _userService.GetUserByIdAsync(userId);
@@ -41,7 +46,16 @@ namespace Checkin_App_API.Controllers
             return StatusCode(user.StatusCode, user);
         }
 
+        [HttpGet("{userId}/reward-cards")]
+        [Authorize]
+        public async Task<ActionResult<ServiceResult<IEnumerable<UserRewardCardResponseDto>>>> GetUserRewardCards(Guid userId)
+        {
+            var result = await _rewardCardService.GetUserRewardCards(userId);
+            return Ok(result);
+        }
+
         [HttpPut("{userId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResult>> UpdateUser(Guid userId, [FromBody] UserUpdateRequestDto request)
         {
             var result = await _userService.UpdateUserAsync(userId, request);
@@ -53,6 +67,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpDelete("{userId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResult>> DeleteUser(Guid userId)
         {
             var result = await _userService.DeleteUserAsync(userId);
@@ -63,18 +78,8 @@ namespace Checkin_App_API.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPost("{userId}/change-password")]
-        public async Task<ActionResult<ServiceResult>> AdminChangeUserPassword(Guid userId, [FromBody] AdminChangeUserPasswordRequestDto request)
-        {
-            var result = await _userService.AdminChangeUserPasswordAsync(userId, request);
-            if (result.IsSuccess)
-            {
-                return Ok(result);
-            }
-            return StatusCode(result.StatusCode, result);
-        }
-
         [HttpPost("{userId}/assign-roles")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ServiceResult>> AssignRolesToUser(Guid userId, [FromBody] List<Guid> roleIds)
         {
             var result = await _userService.AssignRolesToUserAsync(userId, roleIds);
@@ -85,9 +90,8 @@ namespace Checkin_App_API.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        // Endpoint for user to change their own password
-        [Authorize]
         [HttpPost("me/change-password")]
+        [Authorize]
         public async Task<ActionResult<ServiceResult>> ChangeMyPassword([FromBody] UserChangePasswordRequestDto request)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Repository.Models;
 using StackExchange.Redis;
 using Service.Redis;
+using Service.RewardCardService;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,8 @@ var redisConnectionString = builder.Configuration["Redis:ConnectionString"]
     ?? throw new InvalidOperationException("Redis:ConnectionString is not configured.");
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
 builder.Services.AddScoped<IRedisService, RedisService>();
+
+builder.Services.AddScoped<IRewardCardService, RewardCardService>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

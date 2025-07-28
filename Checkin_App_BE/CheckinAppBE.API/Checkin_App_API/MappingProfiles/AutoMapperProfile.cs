@@ -1,4 +1,5 @@
 using AutoMapper;
+using Dto.RewardCard;
 using Dto.StressLog;
 using Dto.Treasure;
 using Dto.User;
@@ -25,6 +26,12 @@ namespace Checkin_App_API.MappingProfiles
             // StressLog Mappings
             CreateMap<StressLog, StressLogResponseDto>().ReverseMap();
             CreateMap<StressLogCreateRequestDto, StressLog>();
+
+            // RewardCard Mappings
+            CreateMap<RewardCard, RewardCardResponseDto>().ReverseMap();
+
+            // UserRewardCard Mappings
+            CreateMap<UserRewardCard, UserRewardCardResponseDto>().ReverseMap();
         }
     }
 }

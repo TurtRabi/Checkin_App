@@ -4,11 +4,13 @@ using Service.BadgeService;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Checkin_App_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BadgeController : ControllerBase
     {
         private readonly IBadgeService _badgeService;
@@ -53,6 +55,7 @@ namespace Checkin_App_API.Controllers
 
         // This endpoint might be used by an admin or internal process, not directly by a user
         [HttpPost("award")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<UserBadgeResponseDto>> AwardUserBadge(Guid userId, Guid badgeId)
         {
             var result = await _badgeService.AwardUserBadgeAsync(userId, badgeId);
@@ -64,6 +67,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<BadgeResponseDto>> CreateBadge([FromBody] BadgeCreateRequestDto badgeDto)
         {
             var result = await _badgeService.CreateBadgeAsync(badgeDto);
@@ -75,6 +79,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<BadgeResponseDto>> UpdateBadge([FromBody] BadgeUpdateRequestDto badgeDto)
         {
             var result = await _badgeService.UpdateBadgeAsync(badgeDto);
@@ -86,6 +91,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<bool>> DeleteBadge(Guid id)
         {
             var result = await _badgeService.DeleteBadgeAsync(id);

@@ -32,6 +32,8 @@ namespace Repository.Models
         public virtual DbSet<UserRole> UserRoles { get; set; }
         public virtual DbSet<UserTreasure> UserTreasures { get; set; }
         public virtual DbSet<UserSession> UserSessions { get; set; }
+        public virtual DbSet<RewardCard> RewardCards { get; set; } // Thêm DbSet mới
+        public virtual DbSet<UserRewardCard> UserRewardCards { get; set; } // Thêm DbSet mới
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -385,6 +387,70 @@ namespace Repository.Models
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.Cascade) // Or ClientSetNull, depending on your logic
                     .HasConstraintName("FK_UserSessions_Users");
+            });
+
+            // Cấu hình cho RewardCard
+            modelBuilder.Entity<RewardCard>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .HasColumnName("RewardCardID")
+                    .HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(1000);
+
+                entity.Property(e => e.ImageUrl)
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.Rarity)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.DropRate)
+                    .IsRequired()
+                    .HasColumnType("float");
+
+                entity.Property(e => e.AnimationVideoUrl)
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.AnimationType)
+                    .HasMaxLength(50);
+            });
+
+            // Cấu hình cho UserRewardCard
+            modelBuilder.Entity<UserRewardCard>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .HasColumnName("UserRewardCardID")
+                    .HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.UserId)
+                    .HasColumnName("UserID");
+
+                entity.Property(e => e.RewardCardId)
+                    .HasColumnName("RewardCardID");
+
+                entity.Property(e => e.CollectedAt)
+                    .HasDefaultValueSql("(getutcdate())");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserRewardCards) // Assuming you add this navigation property to User model
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserRewardCards_Users");
+
+                entity.HasOne(d => d.RewardCard)
+                    .WithMany(p => p.UserRewardCards) // Assuming you add this navigation property to RewardCard model
+                    .HasForeignKey(d => d.RewardCardId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserRewardCards_RewardCards");
+
+                // Có thể thêm ràng buộc để không cho người dùng nhận trùng nếu mỗi thẻ là độc nhất
+                // entity.HasIndex(e => new { e.UserId, e.RewardCardId }).IsUnique();
             });
 
             OnModelCreatingPartial(modelBuilder);
