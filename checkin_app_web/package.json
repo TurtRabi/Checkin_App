@@ -1,0 +1,43 @@
+{
+  "name": "checkin_app_web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
+    "axios": "^1.11.0",
+    "inversify": "^7.7.0",
+    "pinia": "^3.0.3",
+    "reflect-metadata": "^0.2.2",
+    "vue": "^3.5.18",
+    "vue-router": "^4.5.1",
+    "yup": "^1.7.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.4",
+    "prettier": "^3.6.2",
+    "vite": "^7.0.6",
+    "vite-plugin-vue-devtools": "^8.0.0"
+  },
+  "lint-staged": {
+    "*.{js,vue,ts,css,md}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}
