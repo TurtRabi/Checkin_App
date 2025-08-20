@@ -1,5 +1,7 @@
 import HomePage from '@/application/pages/HomePage.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import Introduce from '../pages/Introduce.vue'
+import { useAuthStore } from '../stores/auth.js'
 
 const routes = [
   {
@@ -9,18 +11,34 @@ const routes = [
     // nếu cần bảo vệ route thì thêm meta.requiresAuth
     // meta: { requiresAuth: true }
   },
+  {
+    path: '/introduce',
+    name: 'Introduce',
+    component: Introduce
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/application/pages/LoginPage.vue')
+  }
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
 
 router.beforeEach((to, from, next) => {
-  // const isLoggedIn = checkAuth()
-  if (to.meta.requiresAuth /* && !isLoggedIn */) {
-    next('/login')
-  } else {
+  const authStore = useAuthStore()
+  const isLoggedIn = authStore.isLoggedIn
+
+  if (to.meta.requiresAuth && !isLoggedIn ) {
+    next({ name: 'Introduce'}) 
+  } else if(to.name === 'Introduce' && isLoggedIn) {
+    next({name: 'Home'})
+  }else if(!isLoggedIn && to.path === '/') {
+    next({ name: 'Introduce' })
+  }else{
     next()
   }
 })

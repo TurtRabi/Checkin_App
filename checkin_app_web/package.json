@@ -15,12 +15,14 @@
   "dependencies": {
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
+    "animate.css": "^4.1.1",
     "axios": "^1.11.0",
     "inversify": "^7.7.0",
     "pinia": "^3.0.3",
     "reflect-metadata": "^0.2.2",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1",
+    "vue3-google-login": "^2.0.34",
     "yup": "^1.7.0"
   },
   "devDependencies": {
