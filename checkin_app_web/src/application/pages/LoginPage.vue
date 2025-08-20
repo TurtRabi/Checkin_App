@@ -45,14 +45,9 @@
         <span class="divider-text">Hoặc</span>
       </div>
 
-      <button @click="handleGoogleLogin" class="google-login-button">
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/100px-Google_%22G%22_logo.svg.png"
-          alt="Google logo"
-          class="google-logo"
-        />
-        Đăng nhập bằng Google
-      </button>
+      <div class="google-login-wrapper">
+        <GoogleLogin :callback="handleCredentialResponse" />
+      </div>
 
       <div class="login-footer">
         <p>Bạn chưa có tài khoản? <a href="#" class="register-link">Đăng ký ngay</a></p>
@@ -63,10 +58,13 @@
 
 <script>
 import { useAuthStore } from "@/application/stores/auth";
-import { useGoogleAuthService } from "@/infrastructure/services/GoogleAuthService";
+import { GoogleLogin } from "vue3-google-login";
 
 export default {
   name: "LoginPage",
+  components: {
+    GoogleLogin,
+  },
   data() {
     return {
       username: "",
@@ -79,23 +77,24 @@ export default {
       // Xử lý đăng nhập thông thường
       console.log("Đăng nhập với:", this.username, this.password);
     },
-    async handleGoogleLogin() {
-      const authStore = useAuthStore();
-      const googleAuthService = useGoogleAuthService();
-
-      try {
-        console.log("Bắt đầu quy trình đăng nhập bằng Google...");
-        const googleToken = await googleAuthService.login();
-        await authStore.handleGoogleLogin(googleToken);
-        if (authStore.isLoggedIn) {
-          console.log("Đăng nhập bằng Google thành công, đang chuyển hướng đến trang chủ...");
-          this.$router.push({ name: 'Home' });
-        } else {
-          alert("Xác thực với máy chủ thất bại. Vui lòng thử lại.");
+    async handleCredentialResponse(response) {
+      const authStore = useAuthStore(); 
+      if (response.credential) {
+        try {
+          await authStore.handleGoogleLogin(response.credential);
+          if (authStore.isLoggedIn) {
+            console.log("Đăng nhập bằng Google thành công, đang chuyển hướng đến trang chủ...");
+            this.$router.push({ name: 'Home' });
+          } else {
+            alert("Xác thực với máy chủ thất bại. Vui lòng thử lại.");
+          }
+        } catch (error) {
+          console.error("Lỗi trong quá trình đăng nhập bằng Google:", error);
+          alert("Đăng nhập bằng Google thất bại. Vui lòng thử lại.");
         }
-      } catch (error) {
-        console.error("Lỗi trong quá trình đăng nhập bằng Google:", error);
-        alert("Đăng nhập bằng Google thất bại. Vui lòng thử lại.");
+      } else {
+        console.error("Google response did not contain a credential.");
+        alert("Không nhận được thông tin xác thực từ Google. Vui lòng thử lại.");
       }
     },
   },
@@ -260,36 +259,11 @@ body {
   margin-left: .5em;
 }
 
-/* Kiểu cho nút đăng nhập bằng Google */
-.google-login-button {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #fff;
-  color: #555;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+.google-login-wrapper {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 10px;
-}
-
-.google-login-button:hover {
-  background-color: #f0f0f0;
-  border-color: #ccc;
-}
-
-.google-login-button:active {
-  transform: scale(0.99);
-}
-
-.google-logo {
-  width: 20px;
-  height: 20px;
+  margin-top: 1rem; 
+  width: 100%;/* Thêm khoảng cách cho dễ nhìn */
 }
 
 .login-footer {

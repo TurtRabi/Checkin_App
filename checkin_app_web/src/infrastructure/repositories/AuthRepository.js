@@ -13,7 +13,8 @@ export default class AuthRepository extends IAuthRepository {
       // Bước 2: Sử dụng apiClient thay vì axios.
       // Bạn chỉ cần cung cấp endpoint, không cần lo về URL gốc hay headers.
       // Endpoint ví dụ: /auth/google-signin
-      const response = await apiClient.post("/auth/google-signin", { token: googleToken });
+      const response = await apiClient.post("/social-login", { provider: 'Google',token: googleToken });
+      console.log(response.data);
 
       // Trả về toàn bộ dữ liệu từ backend để store xử lý
       return response.data;

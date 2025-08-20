@@ -1,0 +1,58 @@
+Luồng hoạt động cốt lõi của dự án tuân theo kiến trúc sạch (Clean Architecture).
+
+Luồng chính: UI (Component) -> Store -> Use Case -> Repository -> API
+
+Đây là "kim chỉ nam" cho việc phát triển các tính năng trong dự án. Tất cả các tương tác, đặc biệt là những tương tác có logic nghiệp vụ và cần lấy/gửi dữ liệu lên server, nên tuân theo luồng này.
+
+Giải thích các tầng:
+
+1.  **UI (Component) - Lớp giao diện (`src/application/pages`, `src/components`)**
+    *   Nhiệm vụ: Chỉ chịu trách nhiệm hiển thị dữ liệu và bắt sự kiện từ người dùng (click, nhập liệu...).
+    *   Tương tác: Khi có sự kiện, nó sẽ gọi các actions trong Store.
+    *   Không chứa logic nghiệp vụ phức tạp.
+
+2.  **Store - Lớp quản lý trạng thái (`src/application/stores`)**
+    *   Nhiệm vụ: Là nguồn dữ liệu trung tâm cho toàn bộ ứng dụng (ví dụ: trạng thái đăng nhập, thông tin người dùng).
+    *   Tương tác: Nhận lệnh từ UI, sau đó gọi đến Use Case tương ứng để xử lý logic. Khi có kết quả, nó cập nhật lại state của mình, và UI sẽ tự động render lại theo state mới.
+
+3.  **Use Case - Lớp nghiệp vụ (`src/domain/usecases`)**
+    *   Nhiệm vụ: Chứa logic nghiệp vụ cốt lõi của một tính năng cụ thể (ví dụ: quy trình đăng nhập, quy trình thêm sản phẩm vào giỏ hàng). Đây là "trái tim" của ứng dụng.
+    *   Tương tác: Được gọi bởi Store. Nó sẽ điều phối các Repository để lấy hoặc gửi dữ liệu cần thiết cho việc thực thi nghiệp vụ.
+    *   Không phụ thuộc vào UI hay chi tiết về cách lấy dữ liệu.
+
+4.  **Repository - Lớp giao tiếp dữ liệu (`src/infrastructure/repositories` triển khai interface từ `src/domain/repositories`)**
+    *   Nhiệm vụ: Là lớp trừu tượng hóa việc truy cập dữ liệu. Nó định nghĩa các phương thức cần có (ví dụ: `getUser()`, `saveUser()`) nhưng không quan tâm đến việc dữ liệu đến từ đâu.
+    *   Triển khai cụ thể (trong `infrastructure`): Chịu trách nhiệm gọi API đến backend, truy cập localStorage, hoặc bất kỳ nguồn dữ liệu nào khác.
+    *   Tương tác: Được gọi bởi Use Case.
+
+5.  **API Client (`src/infrastructure/api`)**
+    *   Nhiệm vụ: Cung cấp một công cụ (ví dụ: một instance của axios) đã được cấu hình sẵn để thực hiện các cuộc gọi HTTP đến backend một cách nhất quán.
+
+Lợi ích của kiến trúc này:
+
+*   **Phân tách rõ ràng (Separation of Concerns):** Mỗi tầng có một trách nhiệm duy nhất, giúp code dễ hiểu, dễ tìm kiếm.
+*   **Dễ bảo trì và mở rộng:** Khi cần thay đổi hoặc thêm tính năng, bạn biết chính xác cần phải sửa ở đâu. Thêm tính năng mới chỉ là việc tạo ra một bộ file mới theo đúng cấu trúc.
+*   **Dễ kiểm thử (Testable):** Có thể kiểm thử logic nghiệp vụ (Use Cases) một cách độc lập mà không cần giao diện hay API thật.
+
+---
+
+### Phân biệt `Repositories` và `Services` (trong `infrastructure`)
+
+**1. `Repositories` (Kho chứa - `src/infrastructure/repositories`)**
+
+*   **Khi nào dùng:** Khi bạn cần quản lý vòng đời (CRUD - Create, Read, Update, Delete) của các **thực thể (entities) trong domain** của bạn.
+*   **Ví dụ:** `AuthRepository` để quản lý `User`, `ProductRepository` để quản lý `Product`. Nó hoạt động như một bộ sưu tập các đối tượng nghiệp vụ mà hệ thống của bạn sở hữu.
+*   **Tóm tắt:** Dùng cho việc giao tiếp với **backend chính** của bạn để quản lý dữ liệu cốt lõi.
+
+**2. `Services` (Dịch vụ - `src/infrastructure/services`)**
+
+*   **Khi nào dùng:** Khi bạn cần **giao tiếp với các hệ thống của bên thứ ba (third-party)**, không phải là backend chính của bạn.
+*   **Ví dụ điển hình:**
+    *   **EmailService:** Gửi email qua API của SendGrid, Mailgun.
+    *   **PaymentService:** Xử lý thanh toán qua API của Stripe, PayPal, MoMo.
+    *   **StorageService:** Upload/download file qua API của AWS S3, Google Cloud Storage.
+    *   **PushNotificationService:** Gửi thông báo đẩy qua Firebase Cloud Messaging (FCM).
+*   **Cách dùng:** Một `Service` thường được gọi từ bên trong một `Use Case`.
+*   **Tóm tắt:** Dùng để nói chuyện với một **API hoặc hệ thống bên ngoài**.
+
+Việc phân chia này giúp `Repository` của bạn luôn sạch sẽ, chỉ tập trung vào các thực thể của domain, và không bị "ô nhiễm" bởi logic của các dịch vụ bên thứ ba.
