@@ -1,44 +1,59 @@
 <template>
   <div class="login-container">
     <div class="login-card">
-      <h2 class="login-title">Đăng nhập tài khoản</h2>
-      <p class="login-subtitle">Chào mừng bạn trở lại! Vui lòng điền thông tin để tiếp tục.</p>
+      <h2 class="login-title">Tạo tài khoản mới</h2>
+      <p class="login-subtitle">Chào mừng bạn! Vui lòng điền thông tin để bắt đầu.</p>
 
-      <form @submit.prevent="handleLogin" class="login-form">
+      <form @submit.prevent="handleRegister" class="login-form">
         <div class="form-group">
-          <label for="username" class="form-label">Tên đăng nhập hoặc Email</label>
+          <label for="userName" class="form-label">Tên đăng nhập</label>
           <input
             type="text"
-            id="username"
-            v-model="username"
+            id="userName"
+            v-model="userName"
             class="form-input"
             required
             autocomplete="username"
           />
         </div>
 
-        <div class="form-group relative">
+        <div class="form-group">
+          <label for="displayName" class="form-label">Tên hiển thị</label>
+          <input
+            type="text"
+            id="displayName"
+            v-model="displayName"
+            class="form-input"
+            required
+            autocomplete="name"
+          />
+        </div>
+
+        <div class="form-group">
           <label for="password" class="form-label">Mật khẩu</label>
           <input
-            :type="showPassword ? 'text' : 'password'"
+            type="password"
             id="password"
             v-model="password"
-            class="form-input pr-10"
+            class="form-input"
             required
-            autocomplete="current-password"
+            autocomplete="new-password"
           />
-          
         </div>
 
-        <div class="form-actions">
-          <div class="remember-me">
-            <input type="checkbox" id="remember" name="remember" class="checkbox-input" />
-            <label for="remember" class="checkbox-label">Ghi nhớ tôi</label>
-          </div>
-          <a href="#" class="forgot-password">Quên mật khẩu?</a>
+        <div class="form-group">
+          <label for="repassword" class="form-label">Nhập lại mật khẩu</label>
+          <input
+            type="password"
+            id="repassword"
+            v-model="rePassword"
+            class="form-input"
+            required
+            autocomplete="new-password"
+          />
         </div>
 
-        <button type="submit" class="login-button">Đăng nhập</button>
+        <button type="submit" class="login-button">Đăng ký</button>
       </form>
 
       <div class="divider">
@@ -50,7 +65,7 @@
       </div>
 
       <div class="login-footer">
-        <p>Bạn chưa có tài khoản? <router-link to="/register" class="register-link">Đăng ký ngay</router-link></p>
+        <p>Bạn đã có tài khoản? <router-link to="/login" class="register-link">Đăng nhập ngay</router-link></p>
       </div>
     </div>
   </div>
@@ -59,41 +74,34 @@
 <script>
 import { useAuthStore } from "@/application/stores/auth";
 import { GoogleLogin } from "vue3-google-login";
-import { ref } from "vue";
 
 export default {
-  name: "LoginPage",
+  name: "RegisterPage",
   components: {
     GoogleLogin,
   },
-
-  data() {
+  data(){
     return {
-      username: "",
-      password: "",
-      showPassword: false,
+      userName: '',
+      displayName: '',
+      password: '',
+      rePassword: '',
     };
   },
   methods: {
-    handleLogin() {
+    async handleRegister() {
+      if (this.password !== this.rePassword) {
+        alert("Mật khẩu không khớp!");
+        return;
+      }
+
       const authStore = useAuthStore();
-      const rememberMe = ref(false);
-      if (this.username && this.password) {
-        authStore.handleEmailPasswordLogin(this.username, this.password,rememberMe.value)
-          .then(() => {
-            if (authStore.isLoggedIn) {
-              console.log("Đăng nhập thành công, đang chuyển hướng đến trang chủ...");
-              this.$router.push({ name: 'Home' });
-            } else {
-              alert("Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.");
-            }
-          })
-          .catch(error => {
-            console.error("Lỗi trong quá trình đăng nhập:", error);
-            alert("Đăng nhập thất bại. Vui lòng thử lại.");
-          });
-      } else {
-        alert("Vui lòng điền đầy đủ thông tin đăng nhập.");
+      try {
+        await authStore.registerWithUsernameAndPassword(this.userName, this.displayName, this.password);
+        this.$router.push('/login');
+      } catch (error) {
+        console.error("Đăng ký thất bại:", error);
+        alert("Đăng ký không thành công. Vui lòng thử lại.");
       }
     },
     async handleCredentialResponse(response) {
@@ -121,10 +129,9 @@ export default {
 </script>
 
 <style scoped>
-/* Nhập font từ Google Fonts để giao diện chuyên nghiệp hơn */
+/* Styles are copied from LoginPage.vue for consistency */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
-/* Reset cơ bản và font chung */
 body {
   font-family: 'Roboto', sans-serif;
   background-color: #f0f2f5;
@@ -154,7 +161,7 @@ body {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   text-align: center;
-  border-top: 5px solid #4285F4; /* Thêm điểm nhấn màu Google */
+  border-top: 5px solid #4285F4;
 }
 
 .login-title {
@@ -202,37 +209,6 @@ body {
   box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
 }
 
-.form-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-}
-
-.remember-me {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.checkbox-input {
-  cursor: pointer;
-}
-
-.checkbox-label {
-  color: #666;
-}
-
-.forgot-password {
-  color: #4285F4;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.forgot-password:hover {
-  text-decoration: underline;
-}
-
 .login-button {
   width: 100%;
   padding: 12px;
@@ -244,6 +220,7 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.1s ease;
+  margin-top: 1rem; /* Add some space above the button */
 }
 
 .login-button:hover {
@@ -282,9 +259,8 @@ body {
   display: flex;
   justify-content: center;
   margin-top: 1rem; 
-  width: 100%;/* Thêm khoảng cách cho dễ nhìn */
+  width: 100%;
 }
-
 
 .login-footer {
   margin-top: 2rem;
@@ -307,17 +283,5 @@ body {
   .login-card {
     padding: 30px 20px;
   }
-}
-.eye-icon {
-  position: absolute;
-  right: 12px;
-  top: 68%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  color: #666;
-}
-
-.eye-icon:hover {
-  color: #4285F4;
 }
 </style>

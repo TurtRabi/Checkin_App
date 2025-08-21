@@ -13,6 +13,44 @@ export default class IAuthRepository {
     throw new Error("AuthRepository must implement loginWithGoogle()");
   }
 
-  // Trong tương lai, bạn có thể thêm các phương thức khác ở đây
-  // ví dụ: logout(), loginWithEmailAndPassword(), refreshToken()
+  /**
+   * @param {string} email The user's email.
+   * @param {string} password The user's password.
+   * @returns {Promise<any>} A promise that resolves with user data and system token.
+   */
+  loginWithUsernameAndPassword(username, password) {
+    throw new Error("AuthRepository must implement loginWithUsernameAndPassword()");
+  }
+   /**
+   * @param {string} refreshToken The refresh token.
+   * @returns {Promise<any>} A promise that resolves with new token data.
+   */
+  refreshToken(refreshToken) {
+    throw new Error("AuthRepository must implement refreshToken()");
+  }
+  /**
+   * @param {string} username The user's username.
+   * @param {string} password The user's password.
+   * @param {string} displayName The user's display name.
+   * @returns {Promise<any>} A promise that resolves with user data and system token.
+   */
+  registerWithUsernameAndPassword(username, password, displayName) {
+    throw new Error("AuthRepository must implement registerWithUsernameAndPassword()");
+  }
+  /**
+   * @param {string} email The user's email.
+   * @returns {Promise<void>} A promise that resolves when the OTP verification email is sent.
+   */
+  senOtpVerificationEmail(email) {
+    throw new Error("AuthRepository must implement senOtpVerificationEmail()");
+  }
+  /**
+   * @param {string} otp The one-time password to verify.
+   * @returns {Promise<any>} A promise that resolves with verification result.
+   */
+  verifyOtp(otp) {
+    throw new Error("AuthRepository must implement verifyOtp()");
+  }
+  
+
 }

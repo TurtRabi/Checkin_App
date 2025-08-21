@@ -15,7 +15,7 @@
           <div class="auth-buttons">
             <template v-if="!authStore.isLoggedIn">
               <router-link to="/login" class="nav-button">Login</router-link>
-              <button class="nav-button" @click="createRipple">Register</button>
+              <router-link to="/register" class="nav-button" @click="createRipple">Register</router-link>
             </template>
             <template v-else>
               <button class="nav-button" @click="(e) => { authStore.logout(); createRipple(e); }">Logout</button>

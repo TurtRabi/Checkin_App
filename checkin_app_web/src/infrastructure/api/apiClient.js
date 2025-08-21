@@ -10,7 +10,7 @@ const apiClient = axios.create({
    * Sử dụng biến môi trường là một practice tốt nhất, nhưng ở đây ta hardcode để làm ví dụ.
    * Ví dụ: http://localhost:5000/api
    */
-  baseURL: 'http://localhost:5027/api/Auth',
+  baseURL: 'http://localhost:5027/api',
   headers: {
     'Content-Type': 'application/json',
   },
