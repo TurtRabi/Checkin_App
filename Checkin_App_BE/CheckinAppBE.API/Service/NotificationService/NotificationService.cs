@@ -16,7 +16,7 @@ namespace Service.NotificationService
         public async Task SendNotificationAsync(string channel, string message)
         {
             var db = _redis.GetDatabase();
-            await db.PublishAsync(channel, message);
+            await db.PublishAsync(new RedisChannel(channel, RedisChannel.PatternMode.Auto), message);
         }
     }
 }

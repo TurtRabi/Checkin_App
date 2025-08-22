@@ -13,7 +13,10 @@ using Repository.Models;
 using Service.NotificationService; // Changed from Service.EmailService
 using Dto;
 using Service.UserService;
-using Dto.Notification; // Thêm dòng này
+using Dto.Notification;
+using Google.Apis.Auth;
+using Microsoft.AspNetCore.Http;
+using Checkin_App_API.Controllers; // Thêm dòng này
 
 namespace Service.AuthenticationService
 {
@@ -24,14 +27,17 @@ namespace Service.AuthenticationService
         private readonly IRedisService _redisService;
         private readonly IGoEmailClientService _goEmailClientService; // Changed from IEmailService
         private readonly IUserService _userService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthenticationService(IUnitOfWork unitOfWork, IConfiguration configuration, IRedisService redisService, IGoEmailClientService goEmailClientService, IUserService userService) // Changed constructor
+        public AuthenticationService(IUnitOfWork unitOfWork, IConfiguration configuration, IRedisService redisService, IGoEmailClientService goEmailClientService, IUserService userService, IHttpContextAccessor httpContextAccessor) // Changed constructor
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _redisService = redisService;
             _goEmailClientService = goEmailClientService; // Changed assignment
             _userService = userService;
+            _httpContextAccessor = httpContextAccessor;
+
         }
 
         public async Task<ServiceResult<LoginResponseDto>> LoginAsync(LoginRequestDto request)
@@ -58,7 +64,7 @@ namespace Service.AuthenticationService
 
             var accessTokenExpirationMinutes = Convert.ToDouble(accessTokenExpirationMinutesString);
             var refreshTokenExpirationDays = Convert.ToDouble(refreshTokenExpirationDaysString);
-
+            var ipAddress = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
             // Tạo UserSession mới
             var newSession = new UserSession
             {
@@ -66,7 +72,7 @@ namespace Service.AuthenticationService
                 UserId = user.Id,
                 RefreshToken = Guid.NewGuid().ToString(), // Tạo refresh token mới
                 DeviceName = request.DeviceName,
-                IpAddress = request.IpAddress,
+                IpAddress = ipAddress,
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(refreshTokenExpirationDays)
             };
@@ -104,8 +110,8 @@ namespace Service.AuthenticationService
 
             return ServiceResult<LoginResponseDto>.Success(new LoginResponseDto
             {
-                AccessToken = accessToken,
-                RefreshToken = newSession.RefreshToken, // Trả về refresh token từ session
+                AuthToken = accessTokenRedisKey,
+                AuthRefresh = refreshTokenRedisKey, // Trả về refresh token từ session
                 User = userResponseDto.Data
             });
         }
@@ -159,7 +165,7 @@ namespace Service.AuthenticationService
                 RoleId = defaultRole.Id
             };
             await _unitOfWork.UserRoleRepository.AddAsync(newUserRole);
-                                    await _unitOfWork.CommitAsync(); // Commit để lưu UserRole
+            await _unitOfWork.CommitAsync(); // Commit để lưu UserRole
 
             // 7. Tạo JWT và Refresh Token (tương tự như LoginAsync)
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -215,8 +221,8 @@ namespace Service.AuthenticationService
 
             return ServiceResult<LoginResponseDto>.Success(new LoginResponseDto
             {
-                AccessToken = accessToken,
-                RefreshToken = newSession.RefreshToken,
+                AuthToken = accessTokenRedisKey,
+                AuthRefresh = refreshTokenRedisKey,
                 User = userResponseDto.Data
             });
         }
@@ -297,8 +303,8 @@ namespace Service.AuthenticationService
 
             return ServiceResult<LoginResponseDto>.Success(new LoginResponseDto
             {
-                AccessToken = newAccessTokenString,
-                RefreshToken = newSession.RefreshToken,
+                AuthToken = accessTokenRedisKey,
+                AuthRefresh = refreshTokenRedisKey,
                 User = userResponseDto.Data
             });
         }
@@ -367,43 +373,55 @@ namespace Service.AuthenticationService
 
         public async Task<ServiceResult<LoginResponseDto>> SocialLoginAsync(SocialLoginRequestDto request)
         {
-            // This is a simplified implementation.
-            // In a real application, you would validate the token with the social provider (e.g., Google, Facebook).
-            // For example, for Google, you'd use GoogleJsonWebSignature.ValidateAsync(request.Token).
-
             if (string.IsNullOrEmpty(request.Provider) || string.IsNullOrEmpty(request.Token))
             {
                 return ServiceResult<LoginResponseDto>.Fail("Thông tin đăng nhập mạng xã hội không hợp lệ.", 400);
             }
 
-            // Giả định: Lấy thông tin người dùng từ token (trong thực tế cần gọi API của nhà cung cấp)
-            // Ví dụ:
-            // var socialUserEmail = "user@example.com"; // Lấy từ việc giải mã token
-            // var socialUserId = "social_id_from_provider"; // Lấy từ việc giải mã token
+            if (!request.Provider.Equals("Google", StringComparison.OrdinalIgnoreCase))
+            {
+                return ServiceResult<LoginResponseDto>.Fail("Hiện tại chỉ hỗ trợ đăng nhập bằng Google.", 400);
+            }
 
-            // Để đơn giản, tôi sẽ giả định một email và ID dựa trên provider và token
-            string socialUserEmail = $"{request.Provider.ToLower()}_{request.Token.Substring(0, 5)}@social.com";
-            string socialUserId = $"{request.Provider.ToLower()}_{request.Token}";
-            string displayName = $"{request.Provider} User";
+            string socialUserEmail;
+            string socialUserId;
+            string displayName;
 
-            // 1. Kiểm tra xem người dùng đã tồn tại thông qua SocialAuthentication chưa
+            // ✅ Xác thực Google token
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { _configuration["Authentication:Google:ClientId"] } // ClientId từ Google Console
+                };
+
+                var payload = await GoogleJsonWebSignature.ValidateAsync(request.Token, settings);
+                socialUserEmail = payload.Email;
+                socialUserId = payload.Subject; // unique id Google
+                displayName = payload.Name ?? payload.Email;
+            }
+            catch
+            {
+                return ServiceResult<LoginResponseDto>.Fail("Token Google không hợp lệ.", 401);
+            }
+
+            // 1. Kiểm tra user đã tồn tại chưa
             var socialAuth = await _unitOfWork.SocialAuthenticationRepository.GetFirstOrDefaultAsync(sa =>
                 sa.Provider == request.Provider && sa.ProviderKey == socialUserId);
 
             User? user;
             if (socialAuth == null)
             {
-                // Người dùng chưa tồn tại, tạo mới
+                // Người dùng mới
                 user = new User
                 {
                     Id = Guid.NewGuid(),
                     DisplayName = displayName,
-                    UserName = socialUserEmail, // Có thể sử dụng email làm username
-                    Email = socialUserEmail, // Có thể lấy email từ thông tin trả về của nhà cung cấp
+                    UserName = socialUserEmail,
+                    Email = socialUserEmail,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
-                await _unitOfWork.UserRepository.AddAsync(user);
 
                 socialAuth = new SocialAuthentication
                 {
@@ -413,40 +431,52 @@ namespace Service.AuthenticationService
                     ProviderKey = socialUserId,
                     CreatedAt = DateTime.UtcNow
                 };
-                // Sử dụng UserService để tạo người dùng và social auth
+
                 var createResult = await _userService.CreateUserAndSocialAuthAsync(user, socialAuth);
                 if (!createResult.IsSuccess)
                 {
                     return ServiceResult<LoginResponseDto>.Fail(createResult.Message, createResult.StatusCode);
                 }
+
+                // Gán vai trò "User" mặc định cho người dùng mới
+                var defaultRole = await _unitOfWork.RoleRepository.GetFirstOrDefaultAsync(r => r.RoleName == "User");
+                if (defaultRole == null)
+                {
+                    // Or handle this case as a critical error, maybe the role should be seeded
+                    return ServiceResult<LoginResponseDto>.Fail("Vai trò 'User' mặc định không tồn tại.", 500);
+                }
+
+                var newUserRole = new UserRole
+                {
+                    UserId = user.Id,
+                    RoleId = defaultRole.Id
+                };
+                await _unitOfWork.UserRoleRepository.AddAsync(newUserRole);
+                await _unitOfWork.CommitAsync(); // Commit the role assignment
             }
             else
             {
-                // Người dùng đã tồn tại, lấy thông tin người dùng
+                // Người dùng đã tồn tại
                 user = await _unitOfWork.UserRepository.GetFirstOrDefaultAsync(u => u.Id == socialAuth.UserId);
                 if (user == null)
                 {
-                    return ServiceResult<LoginResponseDto>.Fail("Người dùng liên kết với tài khoản mạng xã hội không tồn tại.", 404);
+                    return ServiceResult<LoginResponseDto>.Fail("Người dùng liên kết với Google không tồn tại.", 404);
                 }
             }
 
-            // 2. Tạo JWT và Refresh Token (tương tự như LoginAsync)
+            // 2. Tạo JWT & Refresh Token
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key not configured.");
-            var accessTokenExpirationMinutesString = _configuration["Jwt:AccessTokenExpirationMinutes"] ?? throw new InvalidOperationException("Jwt:AccessTokenExpirationMinutes not configured.");
-            var refreshTokenExpirationDaysString = _configuration["Jwt:RefreshTokenExpirationDays"] ?? throw new InvalidOperationException("Jwt:RefreshTokenExpirationDays not configured.");
-
-            var accessTokenExpirationMinutes = Convert.ToDouble(accessTokenExpirationMinutesString);
-            var refreshTokenExpirationDays = Convert.ToDouble(refreshTokenExpirationDaysString);
-
-            // Tạo UserSession mới cho Social Login
+            var accessTokenExpirationMinutes = Convert.ToDouble(_configuration["Jwt:AccessTokenExpirationMinutes"]);
+            var refreshTokenExpirationDays = Convert.ToDouble(_configuration["Jwt:RefreshTokenExpirationDays"]);
+            var ipAddress = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
             var newSession = new UserSession
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
                 RefreshToken = Guid.NewGuid().ToString(),
-                DeviceName = "", // Có thể lấy từ request nếu có
-                IpAddress = "",   // Có thể lấy từ request nếu có
+                DeviceName = request.Device, // optional
+                IpAddress = ipAddress,  // optional
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(refreshTokenExpirationDays)
             };
@@ -458,9 +488,9 @@ namespace Service.AuthenticationService
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-                    new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti, newSession.Id.ToString())
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+            new Claim(JwtRegisteredClaimNames.Jti, newSession.Id.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(accessTokenExpirationMinutes),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)), SecurityAlgorithms.HmacSha256Signature)
@@ -468,25 +498,24 @@ namespace Service.AuthenticationService
             var accessToken = tokenHandler.CreateToken(tokenDescriptor);
             var accessTokenString = tokenHandler.WriteToken(accessToken);
 
-            // Lưu AccessToken vào Redis với key theo UserID và DeviceName
-            var accessTokenRedisKey = $"auth:token:{user.Id}:{newSession.DeviceName}";
-            await _redisService.SetAsync(accessTokenRedisKey, accessTokenString, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
+            // Lưu vào Redis
 
-            // Lưu RefreshToken vào Redis với key theo UserID và DeviceName
-            var refreshTokenRedisKey = $"auth:refresh:{user.Id}:{newSession.DeviceName}";
-            await _redisService.SetAsync(refreshTokenRedisKey, newSession.RefreshToken, TimeSpan.FromDays(refreshTokenExpirationDays));
+            String save_redis_auth_token = $"auth:token:{user.Id}:{newSession.DeviceName}";
+            String save_redis_auth_refresh = $"auth:refresh:{user.Id}:{newSession.DeviceName}";
+            await _redisService.SetAsync(save_redis_auth_token, accessTokenString, TimeSpan.FromMinutes(accessTokenExpirationMinutes));
+            await _redisService.SetAsync(save_redis_auth_refresh, newSession.RefreshToken, TimeSpan.FromDays(refreshTokenExpirationDays));
 
             // 3. Trả về LoginResponseDto
             var userResponseDto = await _userService.GetUserByIdAsync(user.Id);
             if (!userResponseDto.IsSuccess)
             {
-                return ServiceResult<LoginResponseDto>.Fail("Không thể lấy thông tin người dùng sau khi đăng nhập mạng xã hội.", 500);
+                return ServiceResult<LoginResponseDto>.Fail("Không thể lấy thông tin người dùng sau khi đăng nhập Google.", 500);
             }
 
             return ServiceResult<LoginResponseDto>.Success(new LoginResponseDto
             {
-                AccessToken = accessTokenString,
-                RefreshToken = newSession.RefreshToken,
+                AuthToken = save_redis_auth_token,
+                AuthRefresh = save_redis_auth_refresh,
                 User = userResponseDto.Data
             });
         }
@@ -630,6 +659,21 @@ namespace Service.AuthenticationService
             await _unitOfWork.CommitAsync();
 
             return ServiceResult.Success("Tất cả các phiên khác đã được thu hồi thành công.");
+        }
+
+        public async Task<ServiceResult> FogotPassworld(ForgotPassworldRequet requet)
+        {
+            var checkUserExist = await _unitOfWork.UserRepository.FindAsync(s => s.UserName.Equals(requet.UserName) && s.Email.Equals(requet.Email));
+            if (checkUserExist == null)
+            {
+                return (ServiceResult<IEnumerable<bool>>)ServiceResult.Fail("Không tồn tại User");
+            }
+            var sendOtpResult = await SendOtpAsync(new OtpSendRequestDto { Email = requet.Email });
+            if (!sendOtpResult.IsSuccess)
+            {
+                return ServiceResult.Fail($"Gửi OTP thất bại: {sendOtpResult.Message}");
+            }
+            return ServiceResult.Success("OTP đã được gửi tới email của bạn.");
         }
     }
 }

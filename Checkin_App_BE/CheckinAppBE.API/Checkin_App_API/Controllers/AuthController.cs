@@ -65,6 +65,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpPost("verify-otp")]
+        [AllowAnonymous]
         public async Task<ActionResult<ServiceResult>> VerifyOtp([FromBody] OtpVerifyRequestDto request)
         {
             var result = await _authenticationService.VerifyOtpAsync(request);
@@ -76,9 +77,21 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpPost("social-login")]
+        [AllowAnonymous]
         public async Task<ActionResult<ServiceResult<LoginResponseDto>>> SocialLogin([FromBody] SocialLoginRequestDto request)
         {
             var response = await _authenticationService.SocialLoginAsync(request);
+            if (response.IsSuccess)
+            {
+                return Ok(response);
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ServiceResult<bool>>> ForgotPassworld([FromBody] ForgotPassworldRequet request)
+        {
+            var response = await _authenticationService.FogotPassworld(request);
             if (response.IsSuccess)
             {
                 return Ok(response);

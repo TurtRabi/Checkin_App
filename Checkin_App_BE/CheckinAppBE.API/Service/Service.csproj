@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
     <PackageReference Include="MailKit" Version="4.13.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <ProjectReference Include="..\Repository\Repository.csproj" />
     <ProjectReference Include="..\Dto\Dto.csproj" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.0" />

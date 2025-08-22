@@ -1,0 +1,44 @@
+Chào bạn,
+
+Đây là hướng dẫn để sửa lỗi gọi API đăng nhập Google trong tệp `checkin_app_web/src/infrastructure/repositories/AuthRepository.js`.
+
+Vấn đề:
+1.  **Thiếu `provider`**: Yêu cầu API gửi đi thiếu trường `provider: 'Google'`, trong khi backend yêu cầu trường này.
+2.  **Không trả về dữ liệu**: Hàm `loginWithGoogle` không `return` dữ liệu nhận được từ API sau khi gọi thành công.
+
+Cách sửa:
+Bạn cần cập nhật lại hàm `loginWithGoogle` trong tệp `AuthRepository.js` như sau.
+
+**Đoạn mã cũ:**
+```javascript
+async loginWithGoogle(googleToken) {
+  try {
+    const response = await apiClient.post("/social-login", { token: googleToken });
+    console.log(googleToken)
+    //return response.data;
+  } catch (error) {
+    console.error(
+      "Lỗi cụ thể tại AuthRepository.loginWithGoogle:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+}
+```
+
+**Đoạn mã đã sửa:**
+```javascript
+async loginWithGoogle(googleToken) {
+  try {
+    // Thay đổi ở dòng dưới: thêm { provider: 'Google', ... } và bỏ comment ở dòng return
+    const response = await apiClient.post("/social-login", { provider: 'Google', token: googleToken });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Lỗi cụ thể tại AuthRepository.loginWithGoogle:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+}
+```

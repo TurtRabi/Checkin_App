@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/joho/godotenv" // Thư viện để đọc file .env
 )
 
 // NotificationPayload đại diện cho cấu trúc của yêu cầu JSON đến
@@ -22,8 +23,12 @@ var ctx = context.Background()
 var rdb *redis.Client
 
 func init() {
+	// Tải các biến môi trường từ file .env.
+	// Rất hữu ích cho môi trường phát triển local.
+	// Bỏ qua lỗi nếu không tìm thấy file .env, khi đó sẽ dùng biến môi trường của hệ thống.
+	_ = godotenv.Load()
+
 	// Khởi tạo Redis client
-	// Có thể cấu hình địa chỉ Redis qua biến môi trường REDIS_ADDR
 	redisAddr := os.Getenv("REDIS_ADDR")
 	if redisAddr == "" {
 		redisAddr = "localhost:6379" // Địa chỉ Redis mặc định
@@ -31,8 +36,8 @@ func init() {
 
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
-		Password: "", // Không có mật khẩu
-		DB:       0,  // Sử dụng DB mặc định
+		Password: os.Getenv("REDIS_PASSWORD"), // Đọc mật khẩu từ biến môi trường
+		DB:       0,                           // Sử dụng DB mặc định
 	})
 
 	// Ping Redis để kiểm tra kết nối

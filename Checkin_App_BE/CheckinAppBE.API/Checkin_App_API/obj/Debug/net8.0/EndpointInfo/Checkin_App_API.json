@@ -427,6 +427,54 @@
         }
       }
     },
+    "/api/Auth/forgot-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPassworldRequet"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPassworldRequet"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPassworldRequet"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanServiceResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanServiceResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Auth/link-social": {
       "post": {
         "tags": [
@@ -1462,6 +1510,156 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UserMissionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Redis/{key}": {
+      "get": {
+        "tags": [
+          "Redis"
+        ],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Redis"
+        ],
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Redis": {
+      "post": {
+        "tags": [
+          "Redis"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedisSetValueRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedisSetValueRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedisSetValueRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -2657,6 +2855,20 @@
         },
         "additionalProperties": false
       },
+      "ForgotPassworldRequet": {
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "LandmarkCreateRequestDto": {
         "type": "object",
         "properties": {
@@ -2927,27 +3139,23 @@
           "deviceName": {
             "type": "string",
             "nullable": true
-          },
-          "ipAddress": {
-            "type": "string",
-            "nullable": true
           }
         },
         "additionalProperties": false
       },
       "LoginResponseDto": {
         "required": [
-          "accessToken",
-          "refreshToken",
+          "authRefresh",
+          "authToken",
           "user"
         ],
         "type": "object",
         "properties": {
-          "accessToken": {
+          "authToken": {
             "type": "string",
             "nullable": true
           },
-          "refreshToken": {
+          "authRefresh": {
             "type": "string",
             "nullable": true
           },
@@ -3126,10 +3334,6 @@
           "email": {
             "type": "string",
             "nullable": true
-          },
-          "phoneNumber": {
-            "type": "string",
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3141,13 +3345,54 @@
             "type": "string",
             "nullable": true
           },
-          "phoneNumber": {
-            "type": "string",
-            "nullable": true
-          },
           "otpCode": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "RedisSetValueRequestDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          },
+          "expireInSeconds": {
+            "type": "string",
+            "format": "date-span"
           }
         },
         "additionalProperties": false
@@ -3334,6 +3579,10 @@
         "type": "object",
         "properties": {
           "provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "device": {
             "type": "string",
             "nullable": true
           },

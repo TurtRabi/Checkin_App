@@ -7,11 +7,25 @@ using Service.Redis;
 using Service.RewardCardService;
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowMyVueApp",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:5173")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
+
 
 //config db
 builder.Services.AddDbContext<TravelCardsDBContext>(options =>
@@ -35,6 +49,7 @@ builder.Services.AddScoped<IRewardCardService, RewardCardService>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddHttpContextAccessor();
 
 //config JWT
 builder.Services.AddJwtAuthentication(builder.Configuration);
@@ -75,6 +90,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Use CORS middleware
+app.UseCors("AllowMyVueApp");
 
 app.UseAuthorization();
 

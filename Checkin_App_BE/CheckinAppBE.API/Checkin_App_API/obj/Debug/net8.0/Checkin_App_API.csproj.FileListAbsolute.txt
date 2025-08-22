@@ -157,3 +157,10 @@ E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\obj\Debug\net8.0
 E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\obj\Debug\net8.0\Checkin_App_API.pdb
 E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\obj\Debug\net8.0\Checkin_App_API.genruntimeconfig.cache
 E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\obj\Debug\net8.0\ref\Checkin_App_API.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\bin\Debug\net8.0\Google.Apis.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\bin\Debug\net8.0\Google.Apis.Auth.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\bin\Debug\net8.0\Google.Apis.Core.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\bin\Debug\net8.0\Newtonsoft.Json.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\bin\Debug\net8.0\System.Management.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Management.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Checkin_App_API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

@@ -3,7 +3,7 @@ namespace Common
     public class ServiceResult
     {
         public bool IsSuccess { get; set; }
-        public string Message { get; set; }
+        public string Message { get; set; } = string.Empty;
         public int StatusCode { get; set; }
 
         public static ServiceResult Success(string message = "Operation successful", int statusCode = 200)
@@ -19,7 +19,7 @@ namespace Common
 
     public class ServiceResult<T> : ServiceResult
     {
-        public T Data { get; set; }
+        public T Data { get; set; } = default(T)!;
 
         public static ServiceResult<T> Success(T data, string message = "Operation successful", int statusCode = 200)
         {

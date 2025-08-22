@@ -396,9 +396,17 @@
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.70.0, )"
+            },
             "MailKit": {
               "target": "Package",
               "version": "[4.13.0, )"
+            },
+            "Microsoft.AspNetCore.Http.Abstractions": {
+              "target": "Package",
+              "version": "[2.3.0, )"
             },
             "StackExchange.Redis": {
               "target": "Package",
