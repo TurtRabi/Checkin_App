@@ -35,7 +35,7 @@
             <input type="checkbox" id="remember" name="remember" class="checkbox-input" />
             <label for="remember" class="checkbox-label">Ghi nhớ tôi</label>
           </div>
-          <a href="#" class="forgot-password">Quên mật khẩu?</a>
+          <a href="#" @click.prevent="openForgotPasswordModal" class="forgot-password">Quên mật khẩu?</a>
         </div>
 
         <button type="submit" class="login-button">Đăng nhập</button>
@@ -51,6 +51,44 @@
 
       <div class="login-footer">
         <p>Bạn chưa có tài khoản? <router-link to="/register" class="register-link">Đăng ký ngay</router-link></p>
+      </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div v-if="showForgotPasswordModal" class="modal-overlay" @click.self="closeForgotPasswordModal">
+      <div class="modal-content">
+        <h3 class="modal-title">Quên mật khẩu</h3>
+        <p class="modal-description">Vui lòng nhập địa chỉ email của bạn để nhận mã OTP.</p>
+        <form @submit.prevent="handleForgotPassword">
+          <div class="form-group">
+            <label for="forgot-email" class="form-label">Email</label>
+            <input type="email" id="forgot-email" v-model="forgotPasswordEmail" class="form-input" required />
+            <label for="forgot-email" class="form-label">User Name</label>
+            <input type="text" id="forgot-userName" v-model="forgotPasswordUserName" class="form-input" required />
+          </div>
+          <div class="modal-actions">
+            <button type="button" @click="closeForgotPasswordModal" class="btn-secondary">Hủy</button>
+            <button type="submit" class="btn-primary">Gửi</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- OTP Modal -->
+    <div v-if="showOtpModal" class="modal-overlay" @click.self="closeOtpModal">
+      <div class="modal-content">
+        <h3 class="modal-title">Nhập mã OTP</h3>
+        <p class="modal-description">Mã OTP gồm 6 chữ số đã được gửi đến email của bạn.</p>
+        <form @submit.prevent="handleVerifyOtp">
+          <div class="form-group">
+            <label for="otp-input" class="form-label">Mã OTP</label>
+            <input type="text" id="otp-input" v-model="otp" class="form-input" required maxlength="6" />
+          </div>
+          <div class="modal-actions">
+            <button type="button" @click="closeOtpModal" class="btn-secondary">Hủy</button>
+            <button type="submit" class="btn-primary">Xác nhận</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -72,6 +110,11 @@ export default {
       username: "",
       password: "",
       showPassword: false,
+      showForgotPasswordModal: false,
+      forgotPasswordEmail: "",
+      forgotPasswordUserName: "",
+      showOtpModal: false,
+      otp: "",
     };
   },
   methods: {
@@ -114,6 +157,56 @@ export default {
       } else {
         console.error("Google response did not contain a credential.");
         alert("Không nhận được thông tin xác thực từ Google. Vui lòng thử lại.");
+      }
+    },
+    openForgotPasswordModal() {
+      this.showForgotPasswordModal = true;
+    },
+    closeForgotPasswordModal() {
+      this.showForgotPasswordModal = false;
+      this.forgotPasswordEmail = "";
+      this.forgotPasswordUserName = "";
+      this.showOtpModal = false;
+    },
+    handleForgotPassword() {
+      const authStore = useAuthStore();
+      if (this.forgotPasswordEmail) {
+        authStore.forgotPassword(this.forgotPasswordEmail,this.forgotPasswordUserName)
+          .then(() => {
+            this.closeForgotPasswordModal();
+            this.showOtpModal = true;
+          })
+          .catch(error => {
+            console.error("Lỗi khi gửi OTP:", error);
+            alert("Không thể gửi mã OTP. Vui lòng thử lại.");
+          });
+      } else {
+        alert("Vui lòng nhập địa chỉ email.");
+      }
+    },
+    closeOtpModal() {
+      this.showOtpModal = false;
+      this.otp = "";
+    },
+    handleVerifyOtp() {
+      const authStore = useAuthStore();
+      if (this.otp && this.otp.length === 6) {
+        authStore.verifyOtp(this.forgotPasswordEmail, this.otp)
+          .then((success) => {
+            if (success) {
+              alert("Xác thực OTP thành công!");
+              this.closeOtpModal();
+              // Here you would typically redirect to a password reset page
+            } else {
+              alert("Mã OTP không đúng. Vui lòng thử lại.");
+            }
+          })
+          .catch(error => {
+            console.error("Lỗi khi xác thực OTP:", error);
+            alert("Có lỗi xảy ra trong quá trình xác thực OTP.");
+          });
+      } else {
+        alert("Vui lòng nhập mã OTP gồm 6 chữ số.");
       }
     },
   },
@@ -319,5 +412,75 @@ body {
 
 .eye-icon:hover {
   color: #4285F4;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.modal-description {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #4285F4;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #357ae8;
+}
+
+.btn-secondary {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background-color: #e0e0e0;
 }
 </style>

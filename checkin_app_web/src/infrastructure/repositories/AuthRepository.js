@@ -91,9 +91,9 @@ export default class AuthRepository extends IAuthRepository {
    * @param {string} email - Email của người dùng để gửi OTP.
    * @returns {Promise<void>} Promise khi gửi email thành công.
    */
-  async senOtpVerificationEmail(email) {
+  async sendOtpVerificationEmail(email) {
     try {
-      const response = await apiClient.post("/Auth/send-otp", { email });
+      const response = await apiClient.post("/Auth/send-otp", { email:email });
       console.log(response.data);
       return response.data;
     } catch (error) {
@@ -119,6 +119,19 @@ export default class AuthRepository extends IAuthRepository {
     } catch (error) {
       console.error(
         "Lỗi cụ thể tại AuthRepository.verifyOtp:",
+        error.response?.data || error.message
+      );
+      throw error;
+    }
+  }
+  async forgotPassword(email,user) {
+    try {
+      const response = await apiClient.post("/Auth/forgot-password", { userName: user,email: email  });
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Lỗi cụ thể tại AuthRepository.forgotPassword:",
         error.response?.data || error.message
       );
       throw error;

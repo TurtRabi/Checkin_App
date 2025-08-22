@@ -1,6 +1,6 @@
 export default class SendOtpEmailUseCase {
-    constructor(emailRepository) {
-        this.emailRepository = emailRepository;
+    constructor(authRepository) {
+        this.authRepository = authRepository;
     }
     /**
      * Gửi mã OTP qua email.
@@ -11,6 +11,6 @@ export default class SendOtpEmailUseCase {
         if (!email) {
             throw new Error("Email is required");
         }
-        return await this.emailRepository.sendOtpVerificationEmail(email);
+        return await this.authRepository.sendOtpVerificationEmail(email);
     }
 }

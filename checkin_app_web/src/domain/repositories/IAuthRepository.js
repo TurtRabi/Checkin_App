@@ -48,8 +48,12 @@ export default class IAuthRepository {
    * @param {string} otp The one-time password to verify.
    * @returns {Promise<any>} A promise that resolves with verification result.
    */
-  verifyOtp(otp) {
+  verifyOtp(email,otp) {
     throw new Error("AuthRepository must implement verifyOtp()");
+  }
+
+  forgotPassword(email,user) {
+    throw new Error("AuthRepository must implement forgotPassword()");
   }
   
 

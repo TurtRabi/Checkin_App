@@ -1,4 +1,12 @@
-import { loginWithEmailPasswordUseCase, loginWithGoogleUseCase,registerWithEmailPasswordUseCase } from "@/dependencies";
+import { 
+    loginWithEmailPasswordUseCase, 
+    loginWithGoogleUseCase,
+    registerWithEmailPasswordUseCase,
+    sendOtpEmailUseCase,
+    verifyOtpUseCase,
+    redisUseCase,
+    forgotPasswordUseCase
+} from "@/dependencies";
 import RefreshTokenUseCase from "@/domain/usecases/RefreshTokenUseCase";
 import { defineStore } from "pinia";
 import { ref } from "vue";
@@ -9,10 +17,9 @@ export const useAuthStore = defineStore('auth', () => {
     const isLoading = ref(false);
     const error = ref(null);
 
-    // Hàm trợ giúp để set dữ liệu đăng nhập
+    // Hàm trợ giúp set dữ liệu
     function setAuthData(authResult, remember) {
         user.value = authResult.data.user;
-        
         if (remember) {
             localStorage.setItem('authRefresh', authResult.data.authRefresh);
         }
@@ -20,7 +27,6 @@ export const useAuthStore = defineStore('auth', () => {
         isLoggedIn.value = true;
     }
 
-    // Hàm trợ giúp để xóa dữ liệu
     function clearAuthData() {
         user.value = null;
         isLoggedIn.value = false;
@@ -28,36 +34,29 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.removeItem('authRefresh');
     }
 
+    // Login Google
     async function handleGoogleLogin(googleToken) {
-        
         isLoading.value = true;
         error.value = null;
         try {
             const userData = await loginWithGoogleUseCase.execute(googleToken);
-            console.log('User data from Google login:', userData);
-            user.value = userData.data.user;
-            console.log('user.value:', user.value);
-            localStorage.setItem('authRefesh', userData.data.authRefresh);
-            localStorage.setItem('authToken',userData.data.authToken);
-            isLoggedIn.value = true;
             setAuthData(userData, true);
-        } catch (error) {
-            console.error('Failed to login with Google:', error);
-            isLoggedIn.value = false;
-            user.value = null;
-            error.value = error.message || 'Login failed';
-        }finally{
+        } catch (err) {
+            console.error('Google login failed:', err);
+            clearAuthData();
+            error.value = err.message || 'Login failed';
+        } finally {
             isLoading.value = false;
         }
-         
     }
 
+    // Login Email/Password
     async function handleEmailPasswordLogin(username, password, remember) {
         isLoading.value = true;
         error.value = null;
         try {
             const userData = await loginWithEmailPasswordUseCase.execute(username, password);
-            setAuthData(userData, remember); // <-- SỬ DỤNG HÀM TRỢ GIÚP
+            setAuthData(userData, remember);
             return true;
         } catch (err) {
             clearAuthData();
@@ -68,38 +67,102 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    // Logout
     function logout() {
-        clearAuthData(); 
+        clearAuthData();
     }
 
+    // Auto-login
     async function tryAutoLogin() {
-        const refresh_token = localStorage.getItem('authRefresh');
-        if (!refresh_token) {
-            return; 
-        }
+        const auth_token = localStorage.getItem('authRefresh');
+        if (!auth_token) return;
+        const refresh_token = redisUseCase.getValue(auth_token);
+        if (!refresh_token) return;
 
         isLoading.value = true;
         try {
             const newAuthData = await RefreshTokenUseCase.execute(refresh_token);
-            setAuthData(newAuthData, true); 
+            setAuthData(newAuthData, true);
         } catch (err) {
-            console.error("Auto login failed, token might be expired.", err);
-            clearAuthData(); // Xóa token hỏng
+            console.error("Auto login failed:", err);
+            clearAuthData();
         } finally {
             isLoading.value = false;
         }
     }
 
+    // Register
     async function registerWithUsernameAndPassword(username, password, displayName) {
+        isLoading.value = true;
+        error.value = null;
         try {
             const userData = await registerWithEmailPasswordUseCase.execute(username, password, displayName);
-            setAuthData(userData, true); // Lưu thông tin đăng nhập
-            return true; // Trả về true nếu đăng ký thành công
+            setAuthData(userData, true);
+            return true;
         } catch (err) {
             error.value = err.response?.data?.message || 'Đăng ký thất bại.';
-            return false; // Trả về false nếu có lỗi
+            return false;
+        } finally {
+            isLoading.value = false;
         }
     }
 
-    return { isLoggedIn, user, isLoading, error, handleGoogleLogin, handleEmailPasswordLogin, logout, tryAutoLogin,registerWithUsernameAndPassword };
+    // Send OTP
+    async function sendOtp(email) {
+        isLoading.value = true;
+        error.value = null;
+        try {
+            await sendOtpEmailUseCase.execute(email);
+            return true;
+        } catch (err) {
+            error.value = err.response?.data?.message || 'Gửi OTP thất bại.';
+            return false;
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    // Verify OTP
+    async function verifyOtp(email, otp) {
+        isLoading.value = true;
+        error.value = null;
+        try {
+            const result = await verifyOtpUseCase.execute(email, otp);
+            return result.success || false;
+        } catch (err) {
+            error.value = err.response?.data?.message || 'Xác thực OTP thất bại.';
+            return false;
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    // Forgot password
+    async function forgotPassword(email, username) {
+        isLoading.value = true;
+        error.value = null;
+        try {
+            await forgotPasswordUseCase.execute(email, username);
+            return true;
+        } catch (err) {
+            error.value = err.response?.data?.message || 'Xử lý quên mật khẩu thất bại.';
+            return false;
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    return { 
+        isLoggedIn, 
+        user, 
+        isLoading, 
+        error, 
+        handleGoogleLogin, 
+        handleEmailPasswordLogin,
+        logout, 
+        tryAutoLogin,
+        registerWithUsernameAndPassword,
+        verifyOtp,
+        forgotPassword
+    };
 });

@@ -15,6 +15,7 @@ import RegisterWithEmailPasswordUseCase from '@/domain/usecases/RegisterWithEmai
 import RedisUseCase from './domain/usecases/RedisUseCase';
 import SendOtpEmailUseCase from './domain/usecases/SendOtpEmailUseCase';
 import verifyOtp from './domain/usecases/VerifyOtpUseCase';
+import forgotPassword from './domain/usecases/ForgotPasswordUseCase';
 
 // ===================================================================
 // KHỞI TẠO VÀ LẮP RÁP (COMPOSITION ROOT)
@@ -32,6 +33,7 @@ export const registerWithEmailPasswordUseCase = new RegisterWithEmailPasswordUse
 export const redisUseCase = new RedisUseCase(redisRepository);
 export const sendOtpEmailUseCase = new SendOtpEmailUseCase(authRepository);
 export const verifyOtpUseCase = new verifyOtp(authRepository);
+export const forgotPasswordUseCase = new forgotPassword(authRepository);
 /*
 Khi ứng dụng của bạn lớn hơn, bạn có thể khởi tạo và export thêm các use case khác từ đây:
 
