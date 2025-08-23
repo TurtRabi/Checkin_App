@@ -1,58 +1,54 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { redisUseCase } from "@/dependencies"; // chỗ này anh đã khởi tạo trong dependencies.js
+import { redisUseCase } from "@/dependencies";
 
 export const useRedisStore = defineStore("redis", () => {
-  const value = ref(null);      // giá trị lấy từ Redis
-  const isLoading = ref(false); // trạng thái loading
-  const error = ref(null);      // lỗi
+  const value = ref(null);
+  const isLoading = ref(false);
+  const error = ref(null);
 
   async function getValue(key) {
     isLoading.value = true;
     error.value = null;
-    try {
-      const result = await redisUseCase.getValue(key);
+    const result = await redisUseCase.getValue(key);
+    if (result.isSuccess) {
       value.value = result;
-      return result;
-    } catch (err) {
-      error.value = err.message || "Không thể lấy giá trị từ Redis";
-      throw err;
-    } finally {
-      isLoading.value = false;
+    } else {
+      error.value = result.message;
+      console.error(`Lỗi khi lấy giá trị từ Redis: ${result.message}`);
     }
+    isLoading.value = false;
+    return result; // Trả về kết quả gốc để component có thể xử lý thêm nếu cần
   }
 
-  // Set value vào Redis
   async function setValue(key, newValue, expireInSeconds = 3600) {
     isLoading.value = true;
     error.value = null;
-    try {
-      await redisUseCase.setValue(key, newValue, expireInSeconds);
-      value.value = newValue; // cập nhật lại state
-    } catch (err) {
-      error.value = err.message || "Không thể lưu giá trị vào Redis";
-      throw err;
-    } finally {
-      isLoading.value = false;
+    const result = await redisUseCase.setValue(key, newValue, expireInSeconds);
+    if (result.isSuccess) {
+      value.value = newValue; // Cập nhật state nội bộ
+    } else {
+      error.value = result.message;
+      console.error(`Lỗi khi lưu giá trị vào Redis: ${result.message}`);
     }
+    isLoading.value = false;
+    return result;
   }
 
   async function deleteValue(key) {
     isLoading.value = true;
     error.value = null;
-    try {
-      await redisUseCase.deleteValue(key);
-      if (value.value && key) {
-        value.value = null;
-      }
-    } catch (err) {
-      error.value = err.message || "Không thể xóa giá trị trong Redis";
-      throw err;
-    } finally {
-      isLoading.value = false;
+    // Giả định use case có phương thức deleteValue, và nó cũng trả về cấu trúc chuẩn
+    const result = await redisUseCase.deleteValue(key);
+    if (result.isSuccess) {
+      value.value = null; // Xóa giá trị trong state
+    } else {
+      error.value = result.message;
+      console.error(`Lỗi khi xóa giá trị trong Redis: ${result.message}`);
     }
+    isLoading.value = false;
+    return result;
   }
-  
 
   return {
     value,

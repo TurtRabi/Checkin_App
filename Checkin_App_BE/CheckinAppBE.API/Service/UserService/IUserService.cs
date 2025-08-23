@@ -1,3 +1,4 @@
+using Checkin_App_API.Controllers;
 using Common;
 using Dto.User;
 using Repository.Models;
@@ -15,6 +16,7 @@ namespace Service.UserService
         Task<ServiceResult> UpdateUserAsync(Guid userId, UserUpdateRequestDto request);
         Task<ServiceResult> DeleteUserAsync(Guid userId);
         Task<ServiceResult> ChangeUserPasswordAsync(Guid userId, UserChangePasswordRequestDto request);
+        Task<ServiceResult> ChangeForgotPasswordAsyc(ChangeForgotPasswordRequestDto request);
         Task<ServiceResult> AdminChangeUserPasswordAsync(Guid userId, AdminChangeUserPasswordRequestDto request);
         Task<ServiceResult> AssignRolesToUserAsync(Guid userId, List<Guid> roleIds);
         Task<ServiceResult> CreateUserAndLocalAuthAsync(User newUser, LocalAuthentication newLocalAuth);

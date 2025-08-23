@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
+using Checkin_App_API.Controllers;
 
 namespace Service.UserService
 {
@@ -356,6 +357,25 @@ namespace Service.UserService
             await _unitOfWork.CommitAsync();
 
             return ServiceResult.Success("Người dùng đã được bỏ cấm thành công.");
+        }
+
+        public async Task<ServiceResult> ChangeForgotPasswordAsyc(ChangeForgotPasswordRequestDto request)
+        {
+            var user = await _unitOfWork.UserRepository.GetFirstOrDefaultAsync(u => u.Email.Equals(request.Email) && u.UserName.Equals(request.Username));
+            if (user == null)
+            {
+                return ServiceResult.Fail("Người dùng không tồn tại.", 404);
+            }
+            var localAuth = await _unitOfWork.LocalAuthenticationRepository.GetFirstOrDefaultAsync(la => la.UserId == user.Id);
+            if (localAuth == null)
+            {
+                return ServiceResult.Fail("Người dùng không có mật khẩu cục bộ để thay đổi.", 404);
+            }
+            localAuth.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            _unitOfWork.LocalAuthenticationRepository.Update(localAuth);
+            await _unitOfWork.CommitAsync();
+            return ServiceResult.Success("Mật khẩu đã được thay đổi thành công.");
+
         }
     }
 }

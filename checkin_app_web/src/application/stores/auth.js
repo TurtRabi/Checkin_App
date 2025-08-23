@@ -1,13 +1,13 @@
-import { 
-    loginWithEmailPasswordUseCase, 
+import {
+    loginWithEmailPasswordUseCase,
     loginWithGoogleUseCase,
     registerWithEmailPasswordUseCase,
     sendOtpEmailUseCase,
     verifyOtpUseCase,
     redisUseCase,
-    forgotPasswordUseCase
+    forgotPasswordUseCase,
+    refreshTokenUseCase
 } from "@/dependencies";
-import RefreshTokenUseCase from "@/domain/usecases/RefreshTokenUseCase";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
@@ -81,7 +81,7 @@ export const useAuthStore = defineStore('auth', () => {
 
         isLoading.value = true;
         try {
-            const newAuthData = await RefreshTokenUseCase.execute(refresh_token);
+            const newAuthData = await refreshTokenUseCase.execute(refresh_token);
             setAuthData(newAuthData, true);
         } catch (err) {
             console.error("Auto login failed:", err);
@@ -141,10 +141,18 @@ export const useAuthStore = defineStore('auth', () => {
     async function forgotPassword(email, username) {
         isLoading.value = true;
         error.value = null;
+        console.log('Processing forgot password for:', email, username);
         try {
-            await forgotPasswordUseCase.execute(email, username);
+            var result =await forgotPasswordUseCase.execute(email, username);
+            console.log(result);
+            if(!result.isSuccess) {
+                console.error('Forgot password failed:', result.message);
+                error.value = result.message || 'Xử lý quên mật khẩu thất bại.';
+                return false;
+            }
             return true;
         } catch (err) {
+            console.error('Forgot password error:', err);
             error.value = err.response?.data?.message || 'Xử lý quên mật khẩu thất bại.';
             return false;
         } finally {
@@ -163,6 +171,7 @@ export const useAuthStore = defineStore('auth', () => {
         tryAutoLogin,
         registerWithUsernameAndPassword,
         verifyOtp,
-        forgotPassword
+        forgotPassword,
+        sendOtp
     };
 });

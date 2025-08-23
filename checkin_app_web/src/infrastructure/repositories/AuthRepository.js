@@ -1,140 +1,78 @@
 import IAuthRepository from "@/domain/repositories/IAuthRepository";
 import apiClient from "@/infrastructure/api/apiClient";
 
+/**
+ * Repository để xử lý tất cả các tương tác liên quan đến xác thực với API.
+ * Mỗi phương thức ở đây tương ứng với một endpoint của backend.
+ * Logic xử lý lỗi và chuẩn hóa response đã được chuyển vào apiClient.
+ */
 export default class AuthRepository extends IAuthRepository {
   /**
-   * Gửi Google token lên backend để xác thực và lấy về thông tin người dùng cùng JWT token của hệ thống.
+   * Gửi Google token lên backend để xác thực.
    * @param {string} googleToken - Token nhận được từ Google.
-   * @returns {Promise<any>} Dữ liệu trả về từ backend (thường là user info và token).
+   * @returns {Promise<{isSuccess: boolean, data: any, message?: string, statusCode?: number}>}
    */
   async loginWithGoogle(googleToken) {
-    try {
-      const response = await apiClient.post("/Auth/social-login", { provider: 'Google',devide:'Web',token: googleToken });
-      console.log(response.data);
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Lỗi cụ thể tại AuthRepository.loginWithGoogle:",
-        error.response?.data || error.message
-      );
-      // Ném lỗi để các tầng cao hơn (use case, store) có thể bắt và xử lý (vd: hiển thị thông báo cho người dùng)
-      throw error;
-    }
+    return apiClient.post("/Auth/social-login", { provider: 'Google', device: 'Web', token: googleToken });
   }
+
   /**
-   * Gửi thông tin đăng nhập (username và password) lên backend để xác thực.
-   * @param {string} username - Tên đăng nhập của người dùng.
-   * @param {string} password - Mật khẩu của người dùng.
-   * @returns {Promise<any>} Dữ liệu trả về từ backend (thường là user info và token).
+   * Gửi thông tin đăng nhập (username và password) lên backend.
+   * @param {string} username - Tên đăng nhập.
+   * @param {string} password - Mật khẩu.
+   * @returns {Promise<{isSuccess: boolean, data: any, message?: string, statusCode?: number}>}
    */
   async loginWithUsernameAndPassword(username, password) {
-    try{
-
-      const response = await apiClient.post("/Auth/login", {userName: username,password: password,deviceName: 'Web'});
-      console.log(response.data);
-      return response.data;
-    }catch (error) {
-      console.error(
-        "Lỗi cụ thể tại AuthRepository.loginWithUsernameAndPassword:",
-        error.response?.data || error.message
-      );
-      // Ném lỗi để các tầng cao hơn (use case, store) có thể bắt và xử lý (vd: hiển thị thông báo cho người dùng)
-      throw error;
-    }
+    return apiClient.post("/Auth/login", { userName: username, password: password, deviceName: 'Web' });
   }
+
   /**
-   * Làm mới token xác thực bằng refresh token.
-   * @param {string} refreshToken - Refresh token để lấy token mới.
-   * @returns {Promise<any>} Dữ liệu trả về từ backend (thường là token mới).
+   * Làm mới token xác thực.
+   * @param {string} refreshToken - Refresh token.
+   * @returns {Promise<{isSuccess: boolean, data: any, message?: string, statusCode?: number}>}
    */
   async refreshToken(refreshToken) {
-    try {
-      const response = await apiClient.post("Auth/refresh-token", { refreshToken });
-      console.log(response.data);
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Lỗi cụ thể tại AuthRepository.refreshToken:",
-        error.response?.data || error.message
-      );
-      // Ném lỗi để các tầng cao hơn (use case, store) có thể bắt và xử lý (vd: hiển thị thông báo cho người dùng)
-      throw error;
-    }
+    return apiClient.post("/Auth/refresh-token", { refreshToken });
   }
+
   /**
-   * Đăng ký người dùng mới với tên đăng nhập và mật khẩu.
-   * @param {string} username - Tên đăng nhập của người dùng.
-   * @param {string} password - Mật khẩu của người dùng.
-   * @param {string} displayName - Tên hiển thị của người dùng.
-   * @returns {Promise<any>} Dữ liệu trả về từ backend (thường là user info và token).
+   * Đăng ký người dùng mới.
+   * @param {string} username - Tên đăng nhập.
+   * @param {string} password - Mật khẩu.
+   * @param {string} displayName - Tên hiển thị.
+   * @returns {Promise<{isSuccess: boolean, data: any, message?: string, statusCode?: number}>}
    */
   async registerWithUsernameAndPassword(username, password, displayName) {
-    try {
-      const response = await apiClient.post("/Auth/register", {
-        userName: username,
-        password: password,
-        displayName: displayName
-      });
-      console.log(response.data);
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Lỗi cụ thể tại AuthRepository.registerWithUsernameAndPassword:",
-        error.response?.data || error.message
-      );
-      // Ném lỗi để các tầng cao hơn (use case, store) có thể bắt và xử lý (vd: hiển thị thông báo cho người dùng)
-      throw error;
-    }
+    return apiClient.post("/Auth/register", { userName: username, password: password, displayName: displayName });
   }
+
   /**
-   * Gửi email xác thực OTP đến người dùng.
-   * @param {string} email - Email của người dùng để gửi OTP.
-   * @returns {Promise<void>} Promise khi gửi email thành công.
+   * Yêu cầu gửi OTP qua email.
+   * @param {string} email - Email nhận OTP.
+   * @returns {Promise<{isSuccess: boolean, data: any, message?: string, statusCode?: number}>}
    */
   async sendOtpVerificationEmail(email) {
-    try {
-      const response = await apiClient.post("/Auth/send-otp", { email:email });
-      console.log(response.data);
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Lỗi cụ thể tại AuthRepository.senOtpVerificationEmail:",
-        error.response?.data || error.message
-      );
-      throw error;
-    }
+    return apiClient.post("/Auth/send-otp", { email: email });
   }
- 
+
   /**
-   * Xác thực OTP do người dùng cung cấp.
-   * @param {string} otp - Mã OTP do người dùng cung cấp.
-   * @param {string} email - Email của người dùng để xác thực OTP.
-   * @returns {Promise<any>} Dữ liệu trả về từ backend (thường là kết quả xác thực).
+   * Xác thực mã OTP.
+   * @param {string} email - Email đã dùng để gửi OTP.
+   * @param {string} otpCode - Mã OTP người dùng nhập.
+   * @returns {Promise<{isSuccess: boolean, data: any, message?: string, statusCode?: number}>}
    */
-  async verifyOtp( email, otpCode) {
-    try {
-      const response = await apiClient.post("/Auth/verify-otp", { email: email, otpCode: otpCode });
-      console.log(response.data);
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Lỗi cụ thể tại AuthRepository.verifyOtp:",
-        error.response?.data || error.message
-      );
-      throw error;
-    }
+  async verifyOtp(email, otpCode) {
+    console.log('[Repository] Reached verifyOtp with:', { email, otpCode });
+    return apiClient.post("/Auth/verify-otp", { email: email, otpCode: otpCode });
   }
-  async forgotPassword(email,user) {
-    try {
-      const response = await apiClient.post("/Auth/forgot-password", { userName: user,email: email  });
-      console.log(response.data);
-      return response.data;
-    } catch (error) {
-      console.error(
-        "Lỗi cụ thể tại AuthRepository.forgotPassword:",
-        error.response?.data || error.message
-      );
-      throw error;
-    }
+
+  /**
+   * Xử lý yêu cầu quên mật khẩu.
+   * @param {string} email - Email của tài khoản.
+   * @param {string} username - Tên đăng nhập của tài khoản.
+   * @returns {Promise<{isSuccess: boolean, data: any, message?: string, statusCode?: number}>}
+   */
+  async forgotPassword(email, username) {
+    return apiClient.post("/auth/forgot-password", { userName: username, email });
   }
 }

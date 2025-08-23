@@ -107,5 +107,17 @@ namespace Checkin_App_API.Controllers
             }
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ServiceResult>> ChangeForgotPassword([FromBody] ChangeForgotPasswordRequestDto request)
+        {
+            var result = await _userService.ChangeForgotPasswordAsyc(request);
+            if (result.IsSuccess)
+            {
+                return Ok(result);
+            }
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

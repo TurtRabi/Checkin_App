@@ -1614,6 +1614,32 @@
   },
   {
     "ContainingType": "Checkin_App_API.Controllers.UserController",
+    "Method": "ChangeForgotPassword",
+    "RelativePath": "api/User/forgot-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Checkin_App_API.Controllers.ChangeForgotPasswordRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Common.ServiceResult",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Checkin_App_API.Controllers.UserController",
     "Method": "ChangeMyPassword",
     "RelativePath": "api/User/me/change-password",
     "HttpMethod": "POST",

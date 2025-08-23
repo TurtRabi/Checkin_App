@@ -664,9 +664,9 @@ namespace Service.AuthenticationService
         public async Task<ServiceResult> FogotPassworld(ForgotPassworldRequet requet)
         {
             var checkUserExist = await _unitOfWork.UserRepository.FindAsync(s => s.UserName.Equals(requet.UserName) && s.Email.Equals(requet.Email));
-            if (checkUserExist == null)
+            if (checkUserExist.Count() == 0)
             {
-                return (ServiceResult<IEnumerable<bool>>)ServiceResult.Fail("Không tồn tại User");
+                return ServiceResult.Fail("Không tồn tại User");
             }
             var sendOtpResult = await SendOtpAsync(new OtpSendRequestDto { Email = requet.Email });
             if (!sendOtpResult.IsSuccess)

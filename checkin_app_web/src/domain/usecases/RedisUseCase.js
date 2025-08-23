@@ -35,11 +35,6 @@ export default class RedisUseCase{
         if (!key) {
             throw new Error("Key is required");
         }
-        try {
-            await this.redisRepository.setValue(key, null, 0); // Set value to null with 0 expiration to delete it
-        } catch (error) {
-            console.error("Error deleting value from Redis:", error);
-            throw error;
-        }
+        return await this.redisRepository.deleteValue(key);
     }
 }

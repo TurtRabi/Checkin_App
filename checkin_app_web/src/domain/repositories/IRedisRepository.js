@@ -1,25 +1,30 @@
 export default class IRedisRepository {
     /**
-     * @param {string} key The key to set in Redis.
-     * @param {any} value The value to associate with the key.
-     * @returns {Promise<void>} A promise that resolves when the value is set.
+     * Lấy giá trị từ Redis theo key.
+     * @param {string} key - Key cần lấy giá trị.
+     * @returns {Promise<any>}
      */
-    set(key, value) {
-        throw new Error("IRedisRepository must implement set()");
+    getValue(key) {
+        throw new Error("IRedisRepository must implement getValue()");
     }
+
     /**
-     * @param {string} key The key to retrieve from Redis.
-     * @returns {Promise<any>} A promise that resolves with the value associated with the key.
+     * Lưu giá trị vào Redis.
+     * @param {string} key - Key để lưu.
+     * @param {any} value - Giá trị để lưu.
+     * @param {number} expireInSeconds - Thời gian hết hạn (giây).
+     * @returns {Promise<void>}
      */
-    get(key) {
-        throw new Error("IRedisRepository must implement get()");
+    setValue(key, value, expireInSeconds) {
+        throw new Error("IRedisRepository must implement setValue()");
     }
+
     /**
-     * @param {string} key The key to delete from Redis.
-     * @returns {Promise<void>} A promise that resolves when the key is deleted.
+     * Xóa một key khỏi Redis.
+     * @param {string} key - Key cần xóa.
+     * @returns {Promise<void>}
      */
-    delete(key) {
-        throw new Error("IRedisRepository must implement delete()");
+    deleteValue(key) {
+        throw new Error("IRedisRepository must implement deleteValue()");
     }
-    
 }

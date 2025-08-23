@@ -25,6 +25,12 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: () => import('@/application/pages/RegisterPage.vue')
+  },
+  {
+    path: '/reset-password/:email/:username',
+    name: 'ResetPassword',
+    component: () => import('@/application/pages/ResetPassword.vue'),
+    props: true
   }
 ]
 

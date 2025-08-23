@@ -82,13 +82,30 @@
         <form @submit.prevent="handleVerifyOtp">
           <div class="form-group">
             <label for="otp-input" class="form-label">Mã OTP</label>
-            <input type="text" id="otp-input" v-model="otp" class="form-input" required maxlength="6" />
+            <div class="otp-input-container">
+              <input
+                v-for="(digit, index) in otpDigits"
+                :key="index"
+                type="text"
+                maxlength="1"
+                @input="handleOtpInput(index, $event)"
+                @keydown.backspace="handleBackspace(index, $event)"
+                :ref="el => { if (el) otpInputs[index] = el }"
+                class="otp-input form-input"
+                required
+              />
+            </div>
           </div>
           <div class="modal-actions">
             <button type="button" @click="closeOtpModal" class="btn-secondary">Hủy</button>
             <button type="submit" class="btn-primary">Xác nhận</button>
           </div>
         </form>
+        <div class="resend-otp">
+          <button @click="handleResendOtp" :disabled="resendCooldown > 0" class="btn-link">
+            Gửi lại OTP {{ resendCooldown > 0 ? `(${resendCooldown}s)` : '' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -98,13 +115,17 @@
 import { useAuthStore } from "@/application/stores/auth";
 import { GoogleLogin } from "vue3-google-login";
 import { ref } from "vue";
+import { useToast } from "vue-toastification";
 
 export default {
   name: "LoginPage",
   components: {
     GoogleLogin,
   },
-
+  setup() {
+    const toast = useToast();
+    return { toast };
+  },
   data() {
     return {
       username: "",
@@ -115,6 +136,10 @@ export default {
       forgotPasswordUserName: "",
       showOtpModal: false,
       otp: "",
+      otpDigits: ['', '', '', '', '', ''],
+      otpInputs: [],
+      resendCooldown: 0,
+      cooldownInterval: null,
     };
   },
   methods: {
@@ -125,18 +150,18 @@ export default {
         authStore.handleEmailPasswordLogin(this.username, this.password,rememberMe.value)
           .then(() => {
             if (authStore.isLoggedIn) {
-              console.log("Đăng nhập thành công, đang chuyển hướng đến trang chủ...");
+              this.toast.success("Đăng nhập thành công!");
               this.$router.push({ name: 'Home' });
             } else {
-              alert("Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.");
+              this.toast.error("Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.");
             }
           })
           .catch(error => {
             console.error("Lỗi trong quá trình đăng nhập:", error);
-            alert("Đăng nhập thất bại. Vui lòng thử lại.");
+            this.toast.error("Đăng nhập thất bại. Vui lòng thử lại.");
           });
       } else {
-        alert("Vui lòng điền đầy đủ thông tin đăng nhập.");
+        this.toast.error("Vui lòng điền đầy đủ thông tin đăng nhập.");
       }
     },
     async handleCredentialResponse(response) {
@@ -145,18 +170,18 @@ export default {
         try {
           await authStore.handleGoogleLogin(response.credential);
           if (authStore.isLoggedIn) {
-            console.log("Đăng nhập bằng Google thành công, đang chuyển hướng đến trang chủ...");
+            this.toast.success("Đăng nhập bằng Google thành công!");
             this.$router.push({ name: 'Home' });
           } else {
-            alert("Xác thực với máy chủ thất bại. Vui lòng thử lại.");
+            this.toast.error("Xác thực với máy chủ thất bại. Vui lòng thử lại.");
           }
         } catch (error) {
           console.error("Lỗi trong quá trình đăng nhập bằng Google:", error);
-          alert("Đăng nhập bằng Google thất bại. Vui lòng thử lại.");
+          this.toast.error("Đăng nhập bằng Google thất bại. Vui lòng thử lại.");
         }
       } else {
         console.error("Google response did not contain a credential.");
-        alert("Không nhận được thông tin xác thực từ Google. Vui lòng thử lại.");
+        this.toast.error("Không nhận được thông tin xác thực từ Google. Vui lòng thử lại.");
       }
     },
     openForgotPasswordModal() {
@@ -164,51 +189,93 @@ export default {
     },
     closeForgotPasswordModal() {
       this.showForgotPasswordModal = false;
-      this.forgotPasswordEmail = "";
-      this.forgotPasswordUserName = "";
       this.showOtpModal = false;
     },
-    handleForgotPassword() {
+    async handleForgotPassword() {
       const authStore = useAuthStore();
-      if (this.forgotPasswordEmail) {
-        authStore.forgotPassword(this.forgotPasswordEmail,this.forgotPasswordUserName)
-          .then(() => {
+      if (this.forgotPasswordEmail && this.forgotPasswordUserName) {
+        try {
+          const success = await authStore.forgotPassword(this.forgotPasswordEmail, this.forgotPasswordUserName);
+          if (success) {
             this.closeForgotPasswordModal();
             this.showOtpModal = true;
-          })
-          .catch(error => {
-            console.error("Lỗi khi gửi OTP:", error);
-            alert("Không thể gửi mã OTP. Vui lòng thử lại.");
-          });
+            this.toast.success("Mã OTP đã được gửi đến email của bạn.");
+            this.startResendCooldown();
+          } else {
+            this.toast.error(authStore.error || "Yêu cầu gửi OTP thất bại. Vui lòng thử lại.");
+          }
+        } catch (error) {
+          console.error("Lỗi khi gửi OTP:", error);
+          this.toast.error("Không thể gửi mã OTP. Vui lòng thử lại.");
+        }
       } else {
-        alert("Vui lòng nhập địa chỉ email.");
+        this.toast.error("Vui lòng nhập đầy đủ email và tên đăng nhập.");
       }
     },
     closeOtpModal() {
       this.showOtpModal = false;
       this.otp = "";
+      this.otpDigits = ['', '', '', '', '', '']; // Clear otpDigits
+      clearInterval(this.cooldownInterval);
+      this.resendCooldown = 0;
+    },
+    handleOtpInput(index, event) {
+      const value = event.target.value;
+      if (value.length > 1) {
+        this.otpDigits[index] = value.charAt(0); // Take only the first character
+      } else {
+        this.otpDigits[index] = value;
+      }
+
+      // Move focus to the next input if a digit is entered and it's not the last input
+      if (value && index < this.otpDigits.length - 1) {
+        this.otpInputs[index + 1].focus();
+      }
+    },
+    handleBackspace(index, event) {
+      // If the current input is empty and it's not the first input, move focus to the previous input
+      if (!this.otpDigits[index] && index > 0) {
+        this.otpInputs[index - 1].focus();
+      }
     },
     handleVerifyOtp() {
       const authStore = useAuthStore();
-      if (this.otp && this.otp.length === 6) {
-        authStore.verifyOtp(this.forgotPasswordEmail, this.otp)
-          .then((success) => {
-            if (success) {
-              alert("Xác thực OTP thành công!");
-              this.closeOtpModal();
-              // Here you would typically redirect to a password reset page
-            } else {
-              alert("Mã OTP không đúng. Vui lòng thử lại.");
-            }
-          })
-          .catch(error => {
-            console.error("Lỗi khi xác thực OTP:", error);
-            alert("Có lỗi xảy ra trong quá trình xác thực OTP.");
-          });
+      const fullOtp = this.otpDigits.join('');
+      if (fullOtp && fullOtp.length === 6) {
+        const success = authStore.verifyOtp(this.forgotPasswordEmail, fullOtp);
+        if(success) {
+          this.toast.success("Xác thực OTP thành công!");
+          this.$router.push({ name: 'ResetPassword', params: { email: this.forgotPasswordEmail, username: this.forgotPasswordUserName } });
+          this.forgotPasswordEmail = "";
+          this.forgotPasswordUserName = "";
+          this.otpDigits = ['', '', '', '', '', ''];
+          this.closeOtpModal();
+          // Here you can add logic to open a reset password modal if you wish
+        } else {
+          this.toast.error("Xác thực OTP thất bại. Vui lòng kiểm tra lại mã OTP.");
+          this.otpDigits = ['', '', '', '', '', ''];
+          this.otpInputs[0].focus(); 
+        }
       } else {
-        alert("Vui lòng nhập mã OTP gồm 6 chữ số.");
+        this.toast.error("Vui lòng nhập mã OTP gồm 6 chữ số.");
       }
     },
+    handleResendOtp() {
+      this.handleForgotPassword();
+    },
+    startResendCooldown() {
+      this.resendCooldown = 60;
+      this.cooldownInterval = setInterval(() => {
+        if (this.resendCooldown > 0) {
+          this.resendCooldown -= 1;
+        } else {
+          clearInterval(this.cooldownInterval);
+        }
+      }, 1000);
+    },
+  },
+  beforeUnmount() {
+    clearInterval(this.cooldownInterval);
   },
 };
 </script>
@@ -482,5 +549,42 @@ body {
 
 .btn-secondary:hover {
   background-color: #e0e0e0;
+}
+
+/* OTP Input Styles */
+.otp-input-container {
+  display: flex;
+  gap: 10px; /* Space between input boxes */
+  justify-content: center;
+  margin-top: 10px; /* Adjust as needed */
+}
+
+.otp-input {
+  width: 40px; /* Width of each input box */
+  height: 40px; /* Height of each input box */
+  text-align: center;
+  font-size: 1.2em;
+  /* The form-input class already provides border, padding, etc. */
+  /* Add any additional styling specific to OTP inputs here */
+}
+
+.resend-otp {
+  margin-top: 1.5rem;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #4285F4;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  padding: 0;
+}
+
+.btn-link:disabled {
+  color: #aaa;
+  cursor: not-allowed;
+  text-decoration: none;
 }
 </style>
