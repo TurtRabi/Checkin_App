@@ -8,6 +8,9 @@ using System.Linq.Expressions;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using Checkin_App_API.Controllers;
+using Microsoft.AspNetCore.SignalR;
+using SignalRHubs;
+using Dto.Authenticate.Request;
 
 namespace Service.UserService
 {
@@ -16,12 +19,14 @@ namespace Service.UserService
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
         private readonly ILogger<UserService> _logger;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public UserService(IUnitOfWork unitOfWork, IConfiguration configuration, ILogger<UserService> logger)
+        public UserService(IUnitOfWork unitOfWork, IConfiguration configuration, ILogger<UserService> logger, IHubContext<NotificationHub> hubContext)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _logger = logger;
+            _hubContext = hubContext;
         }
 
         public async Task<ServiceResult<IEnumerable<UserResponseDto>>> GetAllUsersAsync(UserFilterRequestDto filter)
@@ -154,6 +159,7 @@ namespace Service.UserService
             }
 
             await _unitOfWork.CommitAsync();
+            await _hubContext.Clients.All.SendAsync("UserUpdated", new { userId = user.Id, displayName = user.DisplayName });
             return ServiceResult.Success("Thông tin người dùng đã được cập nhật thành công.");
         }
 

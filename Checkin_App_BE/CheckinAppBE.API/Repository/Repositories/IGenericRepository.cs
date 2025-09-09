@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Repository.Models;
 
 namespace Repository.Repositories
 {
@@ -17,6 +18,5 @@ namespace Repository.Repositories
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, string includeProperties = "");
         Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, string includeProperties = "");
         Task AddRangeAsync(IEnumerable<T> entities);
-
     }
 }

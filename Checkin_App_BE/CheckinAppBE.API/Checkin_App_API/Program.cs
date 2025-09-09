@@ -5,6 +5,7 @@ using Repository.Models;
 using StackExchange.Redis;
 using Service.Redis;
 using Service.RewardCardService;
+using SignalRHubs;
 
 
 
@@ -13,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 
 // Add CORS services
 builder.Services.AddCors(options =>
@@ -22,7 +24,8 @@ builder.Services.AddCors(options =>
         {
             builder.WithOrigins("http://localhost:5173")
                    .AllowAnyHeader()
-                   .AllowAnyMethod();
+                   .AllowAnyMethod()
+                   .AllowCredentials();
         });
 });
 
@@ -97,5 +100,6 @@ app.UseCors("AllowMyVueApp");
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

@@ -10,6 +10,7 @@ import {
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useRedisStore } from "@/application/stores/redis";
+import { startSignalRConnection, stopSignalRConnection } from '@/infrastructure/services/signalrService';
 
 // Hàm giải mã JWT đơn giản
 function parseJwt(token) {
@@ -27,22 +28,24 @@ function parseJwt(token) {
 }
 
 export const useAuthStore = defineStore('auth', () => {
-    // State
+    // State - Khởi tạo từ localStorage để giữ trạng thái sau khi tải lại trang
     const isLoggedIn = ref(!!localStorage.getItem('authTokenKey'));
-    const user = ref(null);
+    const storedUser = localStorage.getItem('user');
+    const user = ref((storedUser && storedUser !== 'undefined') ? JSON.parse(storedUser) : null);
     const role = ref(localStorage.getItem('userRole') || null);
     const isLoading = ref(false);
     const error = ref(null);
 
-    // Hàm set dữ liệu xác thực (chỉ lưu key)
+    // Hàm set dữ liệu xác thực
     function setAuthKeys(authResult, remember) {
-        user.value = authResult.data.user;
+        user.value = authResult.data.data.user;
         const authTokenKey = authResult.data.data.authToken;
         const refreshTokenKey = authResult.data.data.authRefresh;
-        console.log("Auth Token Key:", authTokenKey);
-        console.log("Refresh Token Key:", refreshTokenKey);
 
+        console.log("user.value:", user.value);
         localStorage.setItem('authTokenKey', authTokenKey);
+        localStorage.setItem('user', JSON.stringify(user.value)); // Lưu user vào localStorage
+
         if (remember) {
             localStorage.setItem('refreshTokenKey', refreshTokenKey);
         }
@@ -57,6 +60,7 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.removeItem('authTokenKey');
         localStorage.removeItem('refreshTokenKey');
         localStorage.removeItem('userRole');
+        localStorage.removeItem('user'); // Xóa user khỏi localStorage
     }
 
     // Lấy token từ Redis và thiết lập role
@@ -68,7 +72,6 @@ export const useAuthStore = defineStore('auth', () => {
 
         const redisStore = useRedisStore();
         const tokenResult = await redisStore.getValue(authTokenKey);
-        console.log("Token Result from Redis:", tokenResult);
 
         if (!tokenResult.isSuccess || !tokenResult.data) {
             clearAuthData();
@@ -77,19 +80,15 @@ export const useAuthStore = defineStore('auth', () => {
 
         const accessToken = tokenResult.data;
         const decodedToken = parseJwt(accessToken);
-        console.log("Decoded Token:", decodedToken);
-
         if (decodedToken!=null) {
             const userRole = decodedToken['role'];
             role.value = userRole;
-            console.log("User Role:", userRole);
             localStorage.setItem('userRole', userRole);
             return userRole;
         } else {
             const defaultRole = 'User';
             role.value = defaultRole;
             localStorage.setItem('userRole', defaultRole);
-            console.warn("Sử dụng vai trò mặc định do không thể giải mã token.");
             return defaultRole;
         }
     }
@@ -99,18 +98,15 @@ export const useAuthStore = defineStore('auth', () => {
         isLoading.value = true;
         error.value = null;
         try {
-            // B1: Đăng nhập để lấy key
             const userData = await loginWithEmailPasswordUseCase.execute(username, password);
             setAuthKeys(userData, remember);
-            console.log("User data after login:", userData);
-
-            // B2: Lấy token, giải mã và lấy role
-            return await fetchTokenAndSetRole();
-
+            const userRole = await fetchTokenAndSetRole();
+            await startSignalRConnection(); // Bắt đầu kết nối SignalR
+            return userRole;
         } catch (err) {
             clearAuthData();
             error.value = err.response?.data?.message || 'Đăng nhập thất bại.';
-            return null; // Trả về null khi có lỗi
+            return null;
         } finally {
             isLoading.value = false;
         }
@@ -121,18 +117,19 @@ export const useAuthStore = defineStore('auth', () => {
         isLoading.value = true;
         error.value = null;
         try {
-            // B1: Đăng nhập để lấy key
             const userData = await loginWithGoogleUseCase.execute(googleToken);
             setAuthKeys(userData, true);
+            const userRole = await fetchTokenAndSetRole();
+            console.log("Google login successful, user role:", localStorage.getItem('user'));
+            await startSignalRConnection(); // Bắt đầu kết nối SignalR
+            
 
-            // B2: Lấy token, giải mã và lấy role
-            return await fetchTokenAndSetRole();
-
+            return userRole;
         } catch (err) {
             clearAuthData();
             console.error('Google login failed:', err);
             error.value = err.message || 'Login failed';
-            return null; // Trả về null khi có lỗi
+            return null;
         } finally {
             isLoading.value = false;
         }
@@ -140,10 +137,11 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Đăng xuất
     function logout() {
+        stopSignalRConnection(); 
         clearAuthData();
     }
 
-    // Tự động đăng nhập
+   
     async function tryAutoLogin() {
         const refreshTokenKey = localStorage.getItem('refreshTokenKey');
         if (!refreshTokenKey) return;
@@ -158,12 +156,21 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             const newAuthData = await refreshTokenUseCase.execute(refreshToken);
             setAuthKeys(newAuthData, true);
-            await fetchTokenAndSetRole(); // Lấy lại role sau khi refresh token
+            await fetchTokenAndSetRole();
+            await startSignalRConnection();
         } catch (err) {
             console.error("Auto login failed:", err);
             clearAuthData();
         } finally {
             isLoading.value = false;
+        }
+    }
+    
+    
+    function updateUserProfile(updatedUser) {
+        if (updatedUser) {
+            user.value = { ...user.value, ...updatedUser };
+            localStorage.setItem('user', JSON.stringify(user.value));
         }
     }
 
@@ -174,7 +181,9 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             const userData = await registerWithEmailPasswordUseCase.execute(username, password, displayName);
             setAuthKeys(userData, true);
-            return await fetchTokenAndSetRole();
+            const userRole = await fetchTokenAndSetRole();
+            await startSignalRConnection(); // Bắt đầu kết nối SignalR
+            return userRole;
         } catch (err) {
             error.value = err.response?.data?.message || 'Đăng ký thất bại.';
             return null;
@@ -242,6 +251,7 @@ export const useAuthStore = defineStore('auth', () => {
         registerWithUsernameAndPassword,
         verifyOtp,
         forgotPassword,
-        sendOtp
+        sendOtp,
+        updateUserProfile // Expose action mới
     };
 });

@@ -18,7 +18,7 @@
               <router-link to="/register" class="nav-button" @click="createRipple">Register</router-link>
             </template>
             <template v-else>
-              <button class="nav-button" @click="(e) => { authStore.logout(); createRipple(e); }">Logout</button>
+              <UserMenu />
             </template>
           </div>
         </div>
@@ -27,6 +27,7 @@
 
     <script setup>
     import { useAuthStore } from '@/application/stores/auth';
+    import UserMenu from '@/components/UserMenu.vue';
     const authStore = useAuthStore();
 
     function createRipple(event) {

@@ -18,3 +18,5 @@ E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Service\obj\Debug\net8.0\Service
 E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Service\obj\Debug\net8.0\refint\Service.dll
 E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Service\obj\Debug\net8.0\Service.pdb
 E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Service\obj\Debug\net8.0\ref\Service.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Service\bin\Debug\net8.0\SignalRHubs.dll
+E:\AppGoogleMap\Checkin_App_BE\CheckinAppBE.API\Service\bin\Debug\net8.0\SignalRHubs.pdb

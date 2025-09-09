@@ -44,6 +44,21 @@ namespace Service.AuthenticationService
         {
             // 1. Tìm người dùng theo email
             var user = await _unitOfWork.UserRepository.GetFirstOrDefaultAsync(u => u.UserName == request.UserName);
+            var userRoles = await _unitOfWork.UserRoleRepository.GetAllAsync();
+
+            var roles1 = await _unitOfWork.RoleRepository.GetAllAsync();
+
+            var joined = from ur in userRoles
+                         join r in roles1 on ur.RoleId equals r.Id
+                         where ur.UserId == user.Id
+                         select new UserRole
+                         {
+                             UserId = ur.UserId,
+                             RoleId = ur.RoleId,
+                             Role = r
+                         };
+
+            user.UserRoles = joined.ToList();
             if (user == null)
             {
                 return ServiceResult<LoginResponseDto>.Fail("UserName hoặc mật khẩu không đúng.", 400);
@@ -80,15 +95,32 @@ namespace Service.AuthenticationService
             await _unitOfWork.UserSessionRepository.AddAsync(newSession);
             await _unitOfWork.CommitAsync(); // Lưu session trước khi tạo JWT để có SessionId
 
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, newSession.Id.ToString())
+            };
+
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                claims.Add(new Claim(ClaimTypes.Email, user.Email));
+            }
+
+            // Lấy tất cả roles của user
+            var roles = user.UserRoles.Select(ur => ur.Role.RoleName).ToList();
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti, newSession.Id.ToString())
-                }.Union(user.Email != null ? new[] { new Claim(ClaimTypes.Email, user.Email) } : Enumerable.Empty<Claim>()).ToArray()),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(accessTokenExpirationMinutes),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                    SecurityAlgorithms.HmacSha256Signature
+                )
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var accessToken = tokenHandler.WriteToken(token);
@@ -458,6 +490,24 @@ namespace Service.AuthenticationService
             {
                 // Người dùng đã tồn tại
                 user = await _unitOfWork.UserRepository.GetFirstOrDefaultAsync(u => u.Id == socialAuth.UserId);
+
+
+
+                var userRoles = await _unitOfWork.UserRoleRepository.GetAllAsync();
+
+                var roles1 = await _unitOfWork.RoleRepository.GetAllAsync();
+
+                var joined = from ur in userRoles
+                             join r in roles1 on ur.RoleId equals r.Id
+                             where ur.UserId == user.Id
+                             select new UserRole
+                             {
+                                 UserId = ur.UserId,
+                                 RoleId = ur.RoleId,
+                                 Role = r   
+                             };
+
+                user.UserRoles = joined.ToList();
                 if (user == null)
                 {
                     return ServiceResult<LoginResponseDto>.Fail("Người dùng liên kết với Google không tồn tại.", 404);
@@ -484,16 +534,30 @@ namespace Service.AuthenticationService
             await _unitOfWork.UserSessionRepository.AddAsync(newSession);
             await _unitOfWork.CommitAsync();
 
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+                new Claim(JwtRegisteredClaimNames.Jti, newSession.Id.ToString())
+            };
+
+
+            
+
+            var roles = user.UserRoles.Select(ur => ur.Role.RoleName).ToList();
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-            new Claim(JwtRegisteredClaimNames.Jti, newSession.Id.ToString())
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(accessTokenExpirationMinutes),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                    SecurityAlgorithms.HmacSha256Signature
+                )
             };
             var accessToken = tokenHandler.CreateToken(tokenDescriptor);
             var accessTokenString = tokenHandler.WriteToken(accessToken);

@@ -35,7 +35,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpGet("{userId}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<ActionResult<ServiceResult<UserResponseDto>>> GetUserById(Guid userId)
         {
             var user = await _userService.GetUserByIdAsync(userId);
@@ -55,7 +55,7 @@ namespace Checkin_App_API.Controllers
         }
 
         [HttpPut("{userId}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<ActionResult<ServiceResult>> UpdateUser(Guid userId, [FromBody] UserUpdateRequestDto request)
         {
             var result = await _userService.UpdateUserAsync(userId, request);

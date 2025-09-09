@@ -1,10 +1,11 @@
-using Checkin_App_API.Controllers;
 using Common;
 using Dto.User;
+using Dto.Authenticate.Request;
 using Repository.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Checkin_App_API.Controllers;
 
 namespace Service.UserService
 {

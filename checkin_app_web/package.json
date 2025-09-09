@@ -13,6 +13,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@microsoft/signalr": "^9.0.6",
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
     "animate.css": "^4.1.1",
