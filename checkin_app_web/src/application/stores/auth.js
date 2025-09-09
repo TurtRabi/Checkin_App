@@ -4,85 +4,161 @@ import {
     registerWithEmailPasswordUseCase,
     sendOtpEmailUseCase,
     verifyOtpUseCase,
-    redisUseCase,
     forgotPasswordUseCase,
     refreshTokenUseCase
 } from "@/dependencies";
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { useRedisStore } from "@/application/stores/redis";
+
+// Hàm giải mã JWT đơn giản
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        console.error("Lỗi khi giải mã JWT:", e);
+        return null;
+    }
+}
 
 export const useAuthStore = defineStore('auth', () => {
-    const isLoggedIn = ref(false);
+    // State
+    const isLoggedIn = ref(!!localStorage.getItem('authTokenKey'));
     const user = ref(null);
+    const role = ref(localStorage.getItem('userRole') || null);
     const isLoading = ref(false);
     const error = ref(null);
 
-    // Hàm trợ giúp set dữ liệu
-    function setAuthData(authResult, remember) {
+    // Hàm set dữ liệu xác thực (chỉ lưu key)
+    function setAuthKeys(authResult, remember) {
         user.value = authResult.data.user;
+        const authTokenKey = authResult.data.data.authToken;
+        const refreshTokenKey = authResult.data.data.authRefresh;
+        console.log("Auth Token Key:", authTokenKey);
+        console.log("Refresh Token Key:", refreshTokenKey);
+
+        localStorage.setItem('authTokenKey', authTokenKey);
         if (remember) {
-            localStorage.setItem('authRefresh', authResult.data.authRefresh);
+            localStorage.setItem('refreshTokenKey', refreshTokenKey);
         }
-        localStorage.setItem('authToken', authResult.data.authToken); 
         isLoggedIn.value = true;
     }
 
+    // Hàm xóa dữ liệu xác thực
     function clearAuthData() {
         user.value = null;
+        role.value = null;
         isLoggedIn.value = false;
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('authRefresh');
+        localStorage.removeItem('authTokenKey');
+        localStorage.removeItem('refreshTokenKey');
+        localStorage.removeItem('userRole');
     }
 
-    // Login Google
-    async function handleGoogleLogin(googleToken) {
-        isLoading.value = true;
-        error.value = null;
-        try {
-            const userData = await loginWithGoogleUseCase.execute(googleToken);
-            setAuthData(userData, true);
-        } catch (err) {
-            console.error('Google login failed:', err);
+    // Lấy token từ Redis và thiết lập role
+    async function fetchTokenAndSetRole() {
+        const authTokenKey = localStorage.getItem('authTokenKey');
+        if (!authTokenKey) {
+            throw new Error('Không tìm thấy khóa của token.');
+        }
+
+        const redisStore = useRedisStore();
+        const tokenResult = await redisStore.getValue(authTokenKey);
+        console.log("Token Result from Redis:", tokenResult);
+
+        if (!tokenResult.isSuccess || !tokenResult.data) {
             clearAuthData();
-            error.value = err.message || 'Login failed';
-        } finally {
-            isLoading.value = false;
+            throw new Error('Không thể lấy token từ Redis.');
+        }
+
+        const accessToken = tokenResult.data;
+        const decodedToken = parseJwt(accessToken);
+        console.log("Decoded Token:", decodedToken);
+
+        if (decodedToken!=null) {
+            const userRole = decodedToken['role'];
+            role.value = userRole;
+            console.log("User Role:", userRole);
+            localStorage.setItem('userRole', userRole);
+            return userRole;
+        } else {
+            const defaultRole = 'User';
+            role.value = defaultRole;
+            localStorage.setItem('userRole', defaultRole);
+            console.warn("Sử dụng vai trò mặc định do không thể giải mã token.");
+            return defaultRole;
         }
     }
 
-    // Login Email/Password
+    // Đăng nhập bằng Email/Password
     async function handleEmailPasswordLogin(username, password, remember) {
         isLoading.value = true;
         error.value = null;
         try {
+            // B1: Đăng nhập để lấy key
             const userData = await loginWithEmailPasswordUseCase.execute(username, password);
-            setAuthData(userData, remember);
-            return true;
+            setAuthKeys(userData, remember);
+            console.log("User data after login:", userData);
+
+            // B2: Lấy token, giải mã và lấy role
+            return await fetchTokenAndSetRole();
+
         } catch (err) {
             clearAuthData();
             error.value = err.response?.data?.message || 'Đăng nhập thất bại.';
-            return false;
+            return null; // Trả về null khi có lỗi
         } finally {
             isLoading.value = false;
         }
     }
 
-    // Logout
+    // Đăng nhập bằng Google
+    async function handleGoogleLogin(googleToken) {
+        isLoading.value = true;
+        error.value = null;
+        try {
+            // B1: Đăng nhập để lấy key
+            const userData = await loginWithGoogleUseCase.execute(googleToken);
+            setAuthKeys(userData, true);
+
+            // B2: Lấy token, giải mã và lấy role
+            return await fetchTokenAndSetRole();
+
+        } catch (err) {
+            clearAuthData();
+            console.error('Google login failed:', err);
+            error.value = err.message || 'Login failed';
+            return null; // Trả về null khi có lỗi
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    // Đăng xuất
     function logout() {
         clearAuthData();
     }
 
-    // Auto-login
+    // Tự động đăng nhập
     async function tryAutoLogin() {
-        const auth_token = localStorage.getItem('authRefresh');
-        if (!auth_token) return;
-        const refresh_token = redisUseCase.getValue(auth_token);
-        if (!refresh_token) return;
+        const refreshTokenKey = localStorage.getItem('refreshTokenKey');
+        if (!refreshTokenKey) return;
+
+        const redisStore = useRedisStore();
+        const tokenResult = await redisStore.getValue(refreshTokenKey);
+        if (!tokenResult.isSuccess) return;
+        
+        const refreshToken = tokenResult.data;
 
         isLoading.value = true;
         try {
-            const newAuthData = await refreshTokenUseCase.execute(refresh_token);
-            setAuthData(newAuthData, true);
+            const newAuthData = await refreshTokenUseCase.execute(refreshToken);
+            setAuthKeys(newAuthData, true);
+            await fetchTokenAndSetRole(); // Lấy lại role sau khi refresh token
         } catch (err) {
             console.error("Auto login failed:", err);
             clearAuthData();
@@ -91,23 +167,22 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    // Register
+    // Các hàm khác không thay đổi...
     async function registerWithUsernameAndPassword(username, password, displayName) {
         isLoading.value = true;
         error.value = null;
         try {
             const userData = await registerWithEmailPasswordUseCase.execute(username, password, displayName);
-            setAuthData(userData, true);
-            return true;
+            setAuthKeys(userData, true);
+            return await fetchTokenAndSetRole();
         } catch (err) {
             error.value = err.response?.data?.message || 'Đăng ký thất bại.';
-            return false;
+            return null;
         } finally {
             isLoading.value = false;
         }
     }
 
-    // Send OTP
     async function sendOtp(email) {
         isLoading.value = true;
         error.value = null;
@@ -122,7 +197,6 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    // Verify OTP
     async function verifyOtp(email, otp) {
         isLoading.value = true;
         error.value = null;
@@ -137,22 +211,17 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    // Forgot password
     async function forgotPassword(email, username) {
         isLoading.value = true;
         error.value = null;
-        console.log('Processing forgot password for:', email, username);
         try {
-            var result =await forgotPasswordUseCase.execute(email, username);
-            console.log(result);
+            var result = await forgotPasswordUseCase.execute(email, username);
             if(!result.isSuccess) {
-                console.error('Forgot password failed:', result.message);
                 error.value = result.message || 'Xử lý quên mật khẩu thất bại.';
                 return false;
             }
             return true;
         } catch (err) {
-            console.error('Forgot password error:', err);
             error.value = err.response?.data?.message || 'Xử lý quên mật khẩu thất bại.';
             return false;
         } finally {
@@ -163,6 +232,7 @@ export const useAuthStore = defineStore('auth', () => {
     return { 
         isLoggedIn, 
         user, 
+        role,
         isLoading, 
         error, 
         handleGoogleLogin, 

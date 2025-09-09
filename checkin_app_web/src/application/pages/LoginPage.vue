@@ -143,45 +143,62 @@ export default {
     };
   },
   methods: {
-    handleLogin() {
+    async handleLogin() {
       const authStore = useAuthStore();
-      const rememberMe = ref(false);
-      if (this.username && this.password) {
-        authStore.handleEmailPasswordLogin(this.username, this.password,rememberMe.value)
-          .then(() => {
-            if (authStore.isLoggedIn) {
-              this.toast.success("Đăng nhập thành công!");
-              this.$router.push({ name: 'Home' });
-            } else {
-              this.toast.error("Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.");
-            }
-          })
-          .catch(error => {
-            console.error("Lỗi trong quá trình đăng nhập:", error);
-            this.toast.error("Đăng nhập thất bại. Vui lòng thử lại.");
-          });
-      } else {
+      const rememberMe = document.getElementById('remember')?.checked || false;
+
+      if (!this.username || !this.password) {
         this.toast.error("Vui lòng điền đầy đủ thông tin đăng nhập.");
+        return;
+      }
+
+      try {
+        const role = await authStore.handleEmailPasswordLogin(this.username, this.password, rememberMe);
+
+        if (role) {
+          this.toast.success("Đăng nhập thành công!");
+          if (role === 'Admin') {
+            this.$router.push({ name: 'Home' });
+          } else if (role === 'User') {
+            this.$router.push({ name: 'User' });
+          } else {
+            this.toast.info("Quyền của bạn không được hỗ trợ.");
+            this.$router.push({ name: 'Introduce' });
+          }
+        } else {
+          this.toast.error(authStore.error || "Đăng nhập thất bại. Vui lòng kiểm tra lại.");
+        }
+      } catch (error) {
+        console.error("Lỗi trong quá trình đăng nhập:", error);
+        this.toast.error(authStore.error || "Đã xảy ra lỗi. Vui lòng thử lại.");
       }
     },
     async handleCredentialResponse(response) {
-      const authStore = useAuthStore(); 
-      if (response.credential) {
-        try {
-          await authStore.handleGoogleLogin(response.credential);
-          if (authStore.isLoggedIn) {
-            this.toast.success("Đăng nhập bằng Google thành công!");
-            this.$router.push({ name: 'Home' });
-          } else {
-            this.toast.error("Xác thực với máy chủ thất bại. Vui lòng thử lại.");
-          }
-        } catch (error) {
-          console.error("Lỗi trong quá trình đăng nhập bằng Google:", error);
-          this.toast.error("Đăng nhập bằng Google thất bại. Vui lòng thử lại.");
-        }
-      } else {
+      const authStore = useAuthStore();
+      if (!response.credential) {
         console.error("Google response did not contain a credential.");
-        this.toast.error("Không nhận được thông tin xác thực từ Google. Vui lòng thử lại.");
+        this.toast.error("Không nhận được thông tin xác thực từ Google.");
+        return;
+      }
+
+      try {
+        const role = await authStore.handleGoogleLogin(response.credential);
+        if (role) {
+          this.toast.success("Đăng nhập bằng Google thành công!");
+          if (role === 'Admin') {
+            this.$router.push({ name: 'Home' });
+          } else if (role === 'User') {
+            this.$router.push({ name: 'User' });
+          } else {
+            this.toast.info("Quyền của bạn không được hỗ trợ.");
+            this.$router.push({ name: 'Introduce' });
+          }
+        } else {
+          this.toast.error(authStore.error || "Xác thực với máy chủ thất bại.");
+        }
+      } catch (error) {
+        console.error("Lỗi trong quá trình đăng nhập bằng Google:", error);
+        this.toast.error(authStore.error || "Đăng nhập bằng Google thất bại.");
       }
     },
     openForgotPasswordModal() {
