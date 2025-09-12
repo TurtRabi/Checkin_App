@@ -1259,6 +1259,26 @@
     ]
   },
   {
+    "ContainingType": "Checkin_App_API.Controllers.SessionController",
+    "Method": "GetCurrentSession",
+    "RelativePath": "api/Session/me/current",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "Common.ServiceResult\u00601[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "Checkin_App_API.Controllers.StressLogsController",
     "Method": "CreateStressLog",
     "RelativePath": "api/StressLogs",

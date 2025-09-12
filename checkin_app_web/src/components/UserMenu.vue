@@ -11,45 +11,64 @@
         <span class="name">
           {{ authStore.user?.displayName || authStore.user?.fullName || 'Guest' }}
         </span>
-        <small class="rank">Bronze Priority</small>
+        <small class="rank">{{ userRank }}</small>
       </div>
     </div>
 
     <!-- Dropdown -->
     <div v-if="isOpen" class="dropdown">
       <ul>
-        <li class="points"><span>0 Điểm</span></li>
-        <li><router-link to="/profile">Chỉnh sửa hồ sơ</router-link></li>
-        <li><router-link to="/my-cards">Thẻ của tôi</router-link></li>
-        <li><router-link to="/transactions">Danh sách giao dịch</router-link></li>
-        <li><router-link to="/bookings">Đặt chỗ của tôi</router-link></li>
+        <!-- Chung cho cả Admin & User -->
         <li>
-          <router-link to="/refunds">
-            Hoàn tiền <span class="new">New!</span>
-          </router-link>
+          <router-link to="/profile" @click="toggleMenu">Chỉnh sửa hồ sơ</router-link>
         </li>
-        <li><router-link to="/notifications">Thông báo giá vé máy bay</router-link></li>
-        <li><router-link to="/saved-passengers">Thông tin hành khách đã lưu</router-link></li>
-        <li><router-link to="/promotions">Khuyến mãi</router-link></li>
-        <li @click="logout" class="logout">Đăng xuất</li>
+        <li>
+          <router-link to="/reset-password" @click="toggleMenu">Đổi mật khẩu</router-link>
+        </li>
+
+        <!-- Chỉ dành cho User -->
+        <li v-if="!isAdmin">
+          <router-link to="/achievements" @click="toggleMenu">Xem thành tích</router-link>
+        </li>
+        <li v-if="!isAdmin">
+          <router-link to="/social-links" @click="toggleMenu">Liên kết tài khoản mạng xã hội</router-link>
+        </li>
+
+        <!-- Chỉ dành cho Admin -->
+        <li v-if="isAdmin" class="admin-label">⚡ Quản trị viên</li>
+        <li v-if="isAdmin">
+          <router-link to="/admin/dashboard" @click="toggleMenu">Bảng điều khiển</router-link>
+        </li>
+        <li v-if="isAdmin">
+          <router-link to="/admin/reports" @click="toggleMenu">Xem báo cáo</router-link>
+        </li>
+
+        <!-- Logout -->
+        <li @click="logoutAndCloseMenu" class="logout">Đăng xuất</li>
       </ul>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useAuthStore } from '@/application/stores/auth';
 import defaultAvatar from '@/assets/logo.png'; // fallback avatar
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const authStore = useAuthStore();
 const isOpen = ref(false);
+
+const isAdmin = computed(() => authStore.role === 'Admin');
+const userRank = computed(() => authStore.user?.rank || 'Bronze Priority');
 
 function toggleMenu() {
   isOpen.value = !isOpen.value;
 }
 
-function logout() {
+function logoutAndCloseMenu() {
+  router.push('/introduce');
   authStore.logout();
   isOpen.value = false;
 }
@@ -61,7 +80,6 @@ function logout() {
   cursor: pointer;
   color: white;
 }
-
 .user-info {
   display: flex;
   align-items: center;
@@ -70,7 +88,6 @@ function logout() {
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
 }
-
 .avatar {
   width: 34px;
   height: 34px;
@@ -78,23 +95,19 @@ function logout() {
   background: #ddd;
   object-fit: cover;
 }
-
 .user-text {
   display: flex;
   flex-direction: column;
   line-height: 1.2;
 }
-
 .user-text .name {
   font-weight: bold;
   font-size: 0.95rem;
 }
-
 .user-text .rank {
   font-size: 0.75rem;
   color: gold;
 }
-
 .dropdown {
   position: absolute;
   right: 0;
@@ -107,39 +120,28 @@ function logout() {
   z-index: 1000;
   overflow: hidden;
 }
-
 .dropdown ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-
 .dropdown li {
   padding: 0.9rem 1rem;
   border-bottom: 1px solid #eee;
   transition: background 0.2s;
 }
-
 .dropdown li:hover {
   background: #f9f9f9;
 }
-
-.dropdown .points {
-  font-weight: bold;
-  background: #f1f1f1;
-}
-
 .dropdown .logout {
   color: red;
   cursor: pointer;
 }
-
-.new {
-  background: yellow;
-  color: red;
-  font-size: 0.7rem;
-  padding: 2px 5px;
-  border-radius: 3px;
-  margin-left: 5px;
+.admin-label {
+  font-weight: bold;
+  background: #f5f5f5;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  color: #333;
 }
 </style>

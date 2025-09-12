@@ -158,7 +158,7 @@ export default {
         if (role) {
           this.toast.success("Đăng nhập thành công!");
           if (role === 'Admin') {
-            this.$router.push({ name: 'Home' });
+            this.$router.push({ name: 'AdminDashboard' });
           } else if (role === 'User') {
             this.$router.push({ name: 'User' });
           } else {
@@ -186,7 +186,7 @@ export default {
         if (role) {
           this.toast.success("Đăng nhập bằng Google thành công!");
           if (role === 'Admin') {
-            this.$router.push({ name: 'Home' });
+            this.$router.push({ name: 'AdminDashboard' });
           } else if (role === 'User') {
             this.$router.push({ name: 'User' });
           } else {

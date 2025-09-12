@@ -40,5 +40,13 @@ export default {
 }
 .main-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.chart-box.full-width {
+  grid-column: span 2;
+  height: 400px;
+  overflow: hidden;  /* chặn canvas tràn */
 }
 </style>

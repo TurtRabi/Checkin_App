@@ -134,5 +134,6 @@ namespace Checkin_App_API.Controllers
             }
             return StatusCode(result.StatusCode, result);
         }
+       
     }
 }

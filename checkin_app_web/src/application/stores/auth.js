@@ -11,6 +11,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useRedisStore } from "@/application/stores/redis";
 import { startSignalRConnection, stopSignalRConnection } from '@/infrastructure/services/signalrService';
+import { useSessionStore } from "@/application/stores/session";
 
 // Hàm giải mã JWT đơn giản
 function parseJwt(token) {
@@ -35,6 +36,7 @@ export const useAuthStore = defineStore('auth', () => {
     const role = ref(localStorage.getItem('userRole') || null);
     const isLoading = ref(false);
     const error = ref(null);
+    
 
     // Hàm set dữ liệu xác thực
     function setAuthKeys(authResult, remember) {
@@ -79,6 +81,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
 
         const accessToken = tokenResult.data;
+        localStorage.setItem('authToken', accessToken); 
         const decodedToken = parseJwt(accessToken);
         if (decodedToken!=null) {
             const userRole = decodedToken['role'];
@@ -137,7 +140,10 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Đăng xuất
     function logout() {
-        stopSignalRConnection(); 
+        const userSession = useSessionStore();
+        stopSignalRConnection();
+        const logoutSession = userSession.fetchCurrentSession();
+        console.log("Current session ID on logout:", logoutSession);
         clearAuthData();
     }
 
@@ -162,7 +168,7 @@ export const useAuthStore = defineStore('auth', () => {
             console.error("Auto login failed:", err);
             clearAuthData();
         } finally {
-            isLoading.value = false;
+             isLoading.value = false;
         }
     }
     

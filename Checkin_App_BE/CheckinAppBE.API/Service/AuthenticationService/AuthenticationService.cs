@@ -739,5 +739,27 @@ namespace Service.AuthenticationService
             }
             return ServiceResult.Success("OTP đã được gửi tới email của bạn.");
         }
+
+        public async Task<ServiceResult> getCurrentSession(Guid userId, Guid currentSessionId)
+        {
+            var session = await _unitOfWork.UserSessionRepository.GetFirstOrDefaultAsync(s => s.Id == currentSessionId && s.UserId == userId);
+            if (session == null)
+            {
+                return ServiceResult.Fail("Phiên không tồn tại hoặc không thuộc về người dùng này.", 404);
+            }
+
+            session.IsRevoked = true;
+            _unitOfWork.UserSessionRepository.Update(session);
+            await _unitOfWork.CommitAsync();
+
+            // Xóa AccessToken và RefreshToken khỏi Redis
+            var accessTokenRedisKey = $"auth:token:{userId}:{session.DeviceName}";
+            var refreshTokenRedisKey = $"auth:refresh:{userId}:{session.DeviceName}";
+            await _redisService.RemoveAsync(accessTokenRedisKey);
+            await _redisService.RemoveAsync(refreshTokenRedisKey);
+
+            return ServiceResult.Success("Phiên đã được thu hồi thành công.");
+        }
+
     }
 }

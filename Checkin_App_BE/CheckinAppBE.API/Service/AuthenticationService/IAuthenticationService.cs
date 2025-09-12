@@ -20,5 +20,6 @@ namespace Service.AuthenticationService
         Task<ServiceResult> FogotPassworld(ForgotPassworldRequet requet);
         Task<ServiceResult> RevokeSessionAsync(Guid userId, Guid sessionId);
         Task<ServiceResult> RevokeAllSessionsExceptCurrentAsync(Guid userId, Guid currentSessionId);
+        Task<ServiceResult> getCurrentSession(Guid userId, Guid currentSessionId);
     }
 }

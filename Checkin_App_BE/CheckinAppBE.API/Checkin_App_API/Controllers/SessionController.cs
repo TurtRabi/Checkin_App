@@ -76,5 +76,27 @@ namespace Checkin_App_API.Controllers
             }
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpGet("me/current")]
+        public async Task<ActionResult<ServiceResult<object>>> GetCurrentSession()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
+            {
+                return Unauthorized(ServiceResult<object>.Fail("User not authenticated or invalid user ID.", StatusCodes.Status401Unauthorized));
+            }
+            var currentSessionIdClaim = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti);
+            if (currentSessionIdClaim == null || !Guid.TryParse(currentSessionIdClaim.Value, out Guid currentSessionId))
+            {
+                return Unauthorized(ServiceResult<object>.Fail("Không thể xác định phiên hiện tại.", StatusCodes.Status401Unauthorized));
+            }
+            var sessionResult = await _authenticationService.getCurrentSession(userId, currentSessionId);
+            if (sessionResult.IsSuccess)
+            {
+                
+                return Ok(ServiceResult<object>.Success(sessionResult));
+            }
+            return StatusCode(sessionResult.StatusCode, ServiceResult<object>.Fail(sessionResult.Message, sessionResult.StatusCode));
+        }
     }
 }
