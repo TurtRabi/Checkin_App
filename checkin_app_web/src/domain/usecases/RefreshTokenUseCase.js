@@ -13,4 +13,10 @@ export default class RefreshTokenUseCase {
         }
         return await this.authRepository.refreshToken(refreshToken);
     }
+    async linkSocialAccount(provider, token) {
+        if (!provider || !token) {
+            throw new Error("Provider and token are required");
+        }
+        return await this.authRepository.linkSocialAccount(provider, token);
+    }
 }

@@ -75,4 +75,7 @@ export default class AuthRepository extends IAuthRepository {
   async forgotPassword(email, username) {
     return apiClient.post("/auth/forgot-password", { userName: username, email });
   }
+  async linkSocialAccount(provider, token) {
+    return apiClient.post("/Auth/link-social", { provider, token });
+  }
 }

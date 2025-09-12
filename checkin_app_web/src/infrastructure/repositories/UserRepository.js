@@ -4,4 +4,7 @@ export default class UserRepository extends IUserRepository {
     async changePassword(email, username, newPassword) {
         return apiClient.post("User/forgot-password", { email: email, userName: username, newPassword: newPassword });
     }
+    async getMyUserInfo() {
+        return apiClient.get("User/me");
+    }
 }

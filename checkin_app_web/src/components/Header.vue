@@ -3,16 +3,11 @@
         <div class="container">
           <div class="logo">
             <img src="@/assets/Logo.png" alt="Logo" />
-            <router-link to="/introduce">Google Check-in</router-link>
+            <h1>Google Check-in</h1>
           </div>
-          <nav class="nav" v-if="authStore.isLoggedIn">
+          <nav class="nav" v-if="authStore.isLoggedIn&&(authStore.role==='User')">
             <ul>
               <li><router-link to="/">Home</router-link></li>
-              <li><router-link to="/contact">Contact</router-link></li>
-              <li><router-link to="/services">Services</router-link></li>
-               <li v-if="authStore.role === 'Admin'">
-               <router-link to="/admin/dashboard">Dashboard</router-link>
-              </li>
             </ul>
           </nav>
           <div class="auth-buttons">
@@ -32,7 +27,7 @@
     import { useAuthStore } from '@/application/stores/auth';
     import UserMenu from '@/components/UserMenu.vue';
     const authStore = useAuthStore();
-    console.log("Header component - isLoggedIn:", authStore.isLoggedIn, "role:", authStore.role);
+    
 
     function createRipple(event) {
       const button = event.currentTarget;

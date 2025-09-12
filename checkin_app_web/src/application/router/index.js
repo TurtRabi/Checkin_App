@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Introduce from '../pages/Introduce.vue'
 import { useAuthStore } from '../stores/auth.js'
 import AdminLayout from '../layouts/AdminLayout.vue'
+import ProfileLayout from '../layouts/ProfileLayout.vue'
 
 const routes = [
   {
@@ -63,7 +64,19 @@ const routes = [
       },
       { path: 'settings', name: 'AdminSettings', component: () => import('@/application/pages/admin/SettingsPage.vue') }
     ]
-  }
+  },
+  {
+  path: '/profile',
+  component: ProfileLayout,
+  meta: { requiresAuth: true },
+  children: [
+    { path: 'userProfile', name: 'UserProfile', component: () => import('@/application/pages/profile/ProfileUserPage.vue') },
+    { path: 'achievements', name: 'UserAchievements', component: () => import('@/application/pages/profile/UserAchievements.vue') },
+    { path: 'transactions', name: 'UserTransactions', component: () => import('@/application/pages/profile/UserTransactions.vue') },
+    { path: 'blogs', name: 'UserBlogs', component: () => import('@/application/pages/profile/UserBlogs.vue') },
+    { path: 'news', name: 'UserNews', component: () => import('@/application/pages/profile/UserNews.vue') }
+  ]
+}
 ]
 
 const router = createRouter({

@@ -107,6 +107,22 @@ namespace Checkin_App_API.Controllers
             }
             return StatusCode(result.StatusCode, result);
         }
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<ActionResult<ServiceResult<UserResponseDto>>> GetMyProfile()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
+            {
+                return Unauthorized(ServiceResult<UserResponseDto>.Fail("User not authenticated or invalid user ID.", StatusCodes.Status401Unauthorized));
+            }
+            var user = await _userService.GetUserByIdAsync(userId);
+            if (user.IsSuccess)
+            {
+                return Ok(user);
+            }
+            return StatusCode(user.StatusCode, user);
+        }
 
         [HttpPost("forgot-password")]
         [AllowAnonymous]

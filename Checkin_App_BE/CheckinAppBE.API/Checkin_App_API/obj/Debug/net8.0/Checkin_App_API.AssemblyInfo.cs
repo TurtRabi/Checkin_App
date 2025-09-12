@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Checkin_App_API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+621aedd99cbc609bcb2572450823a4b02fce5451")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+11f46c62c907df89bd9fe9b4ce68afd79d4ad6fc")]
 [assembly: System.Reflection.AssemblyProductAttribute("Checkin_App_API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Checkin_App_API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

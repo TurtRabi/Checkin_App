@@ -55,6 +55,8 @@ export default class IAuthRepository {
   forgotPassword(email,user) {
     throw new Error("AuthRepository must implement forgotPassword()");
   }
-  
+  linkSocialAccount(provider,token) {
+    throw new Error("AuthRepository must implement linkSocialAccount()");
+  }
 
 }

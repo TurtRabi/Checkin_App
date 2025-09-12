@@ -5,7 +5,8 @@ import {
     sendOtpEmailUseCase,
     verifyOtpUseCase,
     forgotPasswordUseCase,
-    refreshTokenUseCase
+    refreshTokenUseCase,
+    linkSocialAccountUseCase
 } from "@/dependencies";
 import { defineStore } from "pinia";
 import { ref } from "vue";
@@ -243,6 +244,30 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function linkGoogleAccount(credential) {
+        isLoading.value = true;
+        error.value = null;
+        try {
+            const result = await linkSocialAccountUseCase.execute('Google', credential);
+            if (result.isSuccess) {
+                // Optionally update user info if the backend returns it
+                if (result.data) {
+                    updateUserProfile(result.data);
+                }
+                return true;
+            } else {
+                error.value = result.message || 'Liên kết tài khoản Google thất bại.';
+                return false;
+            }
+        } catch (err) {
+            console.error("Lỗi khi liên kết Google:", err);
+            error.value = err.response?.data?.message || 'Đã xảy ra lỗi máy chủ khi liên kết tài khoản.';
+            return false;
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
     return { 
         isLoggedIn, 
         user, 
@@ -257,6 +282,7 @@ export const useAuthStore = defineStore('auth', () => {
         verifyOtp,
         forgotPassword,
         sendOtp,
-        updateUserProfile // Expose action mới
+        updateUserProfile,
+        linkGoogleAccount
     };
 });

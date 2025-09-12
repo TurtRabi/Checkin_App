@@ -160,7 +160,7 @@ export default {
           if (role === 'Admin') {
             this.$router.push({ name: 'AdminDashboard' });
           } else if (role === 'User') {
-            this.$router.push({ name: 'User' });
+            this.$router.push({ name: 'Home' });
           } else {
             this.toast.info("Quyền của bạn không được hỗ trợ.");
             this.$router.push({ name: 'Introduce' });

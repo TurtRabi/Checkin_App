@@ -22,11 +22,26 @@ export const useUserStore = defineStore('user', () => {
         } finally {
             isLoading.value = false;
         }
+
+    }
+    async function handleGetMyUserInfo() {
+        isLoading.value = true;
+        error.value = null; 
+        try {
+            const result = await userUseCase.getMyUserInfo();
+            return result;
+        } catch (err) {
+            error.value = err.message || 'Get user info failed';
+        }
+        finally {
+            isLoading.value = false;
+        }
     }
     return {
         isLoading,
         error,
         clearData,
-        handleChangePassword
+        handleChangePassword,
+        handleGetMyUserInfo
     };
 });

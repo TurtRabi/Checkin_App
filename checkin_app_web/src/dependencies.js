@@ -17,6 +17,7 @@ import VerifyOtpUseCase from '@/domain/usecases/VerifyOtpUseCase';
 import ForgotPasswordUseCase from '@/domain/usecases/ForgotPasswordUseCase';
 import UserUseCase from '@/domain/usecases/UserUseCase';
 import SessionUseCase from '@/domain/usecases/SessionUseCase';
+import LinkSocialAccountUseCase from '@/domain/usecases/LinkSocialAccountUseCase';
 
 // Khởi tạo repositories
 const authRepository = new AuthRepository();
@@ -35,3 +36,5 @@ export const verifyOtpUseCase = new VerifyOtpUseCase(authRepository);
 export const forgotPasswordUseCase = new ForgotPasswordUseCase(authRepository);
 export const userUseCase = new UserUseCase(userRepository);
 export const sessionUseCase = new SessionUseCase(sessionRepository);
+export const linkSocialAccountUseCase = new LinkSocialAccountUseCase(authRepository);
+

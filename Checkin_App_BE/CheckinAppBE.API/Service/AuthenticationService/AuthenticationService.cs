@@ -277,6 +277,22 @@ namespace Service.AuthenticationService
                 return ServiceResult<LoginResponseDto>.Fail("Người dùng không tồn tại.", 404);
             }
 
+            var userRoles = await _unitOfWork.UserRoleRepository.GetAllAsync();
+
+            var roles1 = await _unitOfWork.RoleRepository.GetAllAsync();
+
+            var joined = from ur in userRoles
+                         join r in roles1 on ur.RoleId equals r.Id
+                         where ur.UserId == user.Id
+                         select new UserRole
+                         {
+                             UserId = ur.UserId,
+                             RoleId = ur.RoleId,
+                             Role = r
+                         };
+
+            user.UserRoles = joined.ToList();
+
             // 3. Thu hồi session cũ
             existingSession.IsRevoked = true;
             _unitOfWork.UserSessionRepository.Update(existingSession);
@@ -304,17 +320,39 @@ namespace Service.AuthenticationService
             await _unitOfWork.CommitAsync(); // Lưu cả session cũ và mới
 
             // 5. Tạo cặp access token mới với SessionId của session mới
+            var roles = user.UserRoles.Select(ur => ur.Role.RoleName).ToList();
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, newSession.Id.ToString())
+            };
+
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                claims.Add(new Claim(ClaimTypes.Email, user.Email));
+            }
+
+            // ✅ Thêm role vào claim
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti, newSession.Id.ToString())
-                }.Union(user.Email != null ? new[] { new Claim(ClaimTypes.Email, user.Email) } : Enumerable.Empty<Claim>()).ToArray()),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(accessTokenExpirationMinutes),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                    SecurityAlgorithms.HmacSha256Signature
+                )
             };
+
+
+            
+
             var newAccessToken = tokenHandler.CreateToken(tokenDescriptor);
             var newAccessTokenString = tokenHandler.WriteToken(newAccessToken);
 
@@ -591,47 +629,69 @@ namespace Service.AuthenticationService
                 return ServiceResult.Fail("Thông tin liên kết tài khoản mạng xã hội không hợp lệ.", 400);
             }
 
-            // In a real application, you would validate the token with the social provider.
-            // For simplicity, we'll assume the token is valid and extract a socialUserId.
-            string socialUserId = $"{request.Provider.ToLower()}_{request.Token}";
+            string socialUserId;
+            string? socialEmail = null;
 
-            // Check if this social account is already linked to any user
-            var existingSocialAuth = await _unitOfWork.SocialAuthenticationRepository.GetFirstOrDefaultAsync(sa =>
-                sa.Provider == request.Provider && sa.ProviderKey == socialUserId);
+            if (request.Provider.Equals("Google", StringComparison.OrdinalIgnoreCase))
+            {
+                // Xác thực Google token
+                var payload = await GoogleJsonWebSignature.ValidateAsync(request.Token);
+                socialUserId = payload.Subject; // subject = Google user id
+                socialEmail = payload.Email;
+            }
+            else if (request.Provider.Equals("Facebook", StringComparison.OrdinalIgnoreCase))
+            {
+                // Gọi API Facebook để verify token và lấy userId
+                // socialUserId = ...
+                return ServiceResult.Fail("Facebook chưa implement.", 501);
+            }
+            else
+            {
+                return ServiceResult.Fail("Provider không được hỗ trợ.", 400);
+            }
+
+            // Check đã tồn tại
+            var existingSocialAuth = await _unitOfWork.SocialAuthenticationRepository
+                .GetFirstOrDefaultAsync(sa => sa.Provider == request.Provider && sa.ProviderKey == socialUserId);
 
             if (existingSocialAuth != null)
             {
                 if (existingSocialAuth.UserId == userId)
-                {
-                    return ServiceResult.Fail("Tài khoản mạng xã hội này đã được liên kết với tài khoản của bạn.", 409);
-                }
+                    return ServiceResult.Fail("Tài khoản MXH này đã được liên kết với bạn.", 409);
                 else
-                {
-                    return ServiceResult.Fail("Tài khoản mạng xã hội này đã được liên kết với một tài khoản khác.", 409);
-                }
+                    return ServiceResult.Fail("Tài khoản MXH này đã liên kết với user khác.", 409);
             }
 
-            // Check if the user exists
+            // Check user tồn tại
             var user = await _unitOfWork.UserRepository.GetFirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
             {
                 return ServiceResult.Fail("Người dùng không tồn tại.", 404);
             }
-
-            // Link the social account
-            var newSocialAuth = new SocialAuthentication
+            else
             {
-                SocialAuthId = Guid.NewGuid(),
-                UserId = userId,
-                Provider = request.Provider,
-                ProviderKey = socialUserId,
-                CreatedAt = DateTime.UtcNow
-            };
+                // Cập nhật email nếu chưa có
+                if (string.IsNullOrEmpty(user.Email) && !string.IsNullOrEmpty(socialEmail))
+                {
+                    user.Email = socialEmail;
+                    _unitOfWork.UserRepository.Update(user);
+                }
+            }
+
+                // Thêm liên kết mới
+                var newSocialAuth = new SocialAuthentication
+                {
+                    SocialAuthId = Guid.NewGuid(),
+                    UserId = userId,
+                    Provider = request.Provider,
+                    ProviderKey = socialUserId,
+                    CreatedAt = DateTime.UtcNow
+                };
 
             await _unitOfWork.SocialAuthenticationRepository.AddAsync(newSocialAuth);
             await _unitOfWork.CommitAsync();
 
-            return ServiceResult.Success("Liên kết tài khoản mạng xã hội thành công.");
+            return ServiceResult.Success("Liên kết thành công.");
         }
 
         public async Task<ServiceResult> UnlinkSocialAccountAsync(Guid userId, UnlinkSocialAccountRequestDto request)

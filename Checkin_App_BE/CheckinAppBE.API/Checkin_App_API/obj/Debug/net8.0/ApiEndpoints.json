@@ -1660,6 +1660,26 @@
   },
   {
     "ContainingType": "Checkin_App_API.Controllers.UserController",
+    "Method": "GetMyProfile",
+    "RelativePath": "api/User/me",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "Common.ServiceResult\u00601[[Dto.User.UserResponseDto, Dto, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Checkin_App_API.Controllers.UserController",
     "Method": "ChangeMyPassword",
     "RelativePath": "api/User/me/change-password",
     "HttpMethod": "POST",
