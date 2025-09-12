@@ -123,7 +123,6 @@ export const useAuthStore = defineStore('auth', () => {
             const userData = await loginWithGoogleUseCase.execute(googleToken);
             setAuthKeys(userData, true);
             const userRole = await fetchTokenAndSetRole();
-            console.log("Google login successful, user role:", localStorage.getItem('user'));
             await startSignalRConnection(); // Bắt đầu kết nối SignalR
             
 

@@ -2,6 +2,7 @@ import HomePage from '../pages/HomePage.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import Introduce from '../pages/Introduce.vue'
 import { useAuthStore } from '../stores/auth.js'
+import AdminLayout from '../layouts/AdminLayout.vue'
 
 const routes = [
   {
@@ -39,11 +40,13 @@ const routes = [
   },
   {
     path: '/admin',
-    component: HomePage,
-    meta: { requiresAuth: true },
+    component: AdminLayout,
+    meta: { requiresAuth: true, roles: ['Admin'] }, // chỉ cho Admin
     children: [
       { path: '', redirect: '/admin/dashboard' },
       { path: 'dashboard', name: 'AdminDashboard', component: () => import('@/application/pages/admin/DashboardPage.vue') },
+      { path: 'notifications', name: 'notifications', component: () => import('@/application/pages/admin/Notifications.vue') },
+      { path: 'checkins', name: 'checkins', component: () => import('@/application/pages/admin/CheckinsPage.vue') },
       { path: 'users', name: 'AdminUsers', component: () => import('@/application/pages/admin/AdminUsersPage.vue') },
       { path: 'landmarks', name: 'AdminLandmarks', component: () => import('@/application/pages/admin/LandmarksPage.vue') },
       { path: 'missions', name: 'AdminMissions', component: () => import('@/application/pages/admin/MissionsPage.vue') },
@@ -68,19 +71,28 @@ const router = createRouter({
   routes,
 })
 
+// Guard check login + role
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const isLoggedIn = authStore.isLoggedIn
+  const userRole = authStore.role // 👈 giả sử role được lưu trong authStore.user
 
-  if (to.meta.requiresAuth && !isLoggedIn ) {
-    next({ name: 'Introduce'}) 
-  } else if(to.name === 'Introduce' && isLoggedIn) {
-    next({name: 'Home'})
-  }else if(!isLoggedIn && to.path === '/') {
-    next({ name: 'Introduce' })
-  }else{
-    next()
+  // Chưa login mà vào route cần auth
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    return next({ name: 'Login' })
   }
+
+  // Đã login nhưng không đủ role
+  if (to.meta.roles && (!userRole || !to.meta.roles.includes(userRole))) {
+    return next({ name: 'Home' }) // hoặc Introduce tuỳ bạn
+  }
+
+  // Nếu đã login mà vẫn vào introduce → redirect về Home
+  if (to.name === 'Introduce' && isLoggedIn) {
+    return next({ name: 'Home' })
+  }
+
+  next()
 })
 
 export default router
