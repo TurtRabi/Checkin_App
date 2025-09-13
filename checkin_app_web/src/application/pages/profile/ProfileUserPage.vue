@@ -71,13 +71,49 @@
     <div v-if="showSocialLink" class="modal">
       <div class="modal-content">
         <h3>Liên kết tài khoản MXH</h3>
-        <GoogleLogin :callback="handleCredentialResponse" />
+        <div v-if="user.socialGoogleAccounts==true">
+          <button class="social google" @click="unlinkSocialAccount('google')">
+            🔗 Đã liên kết với Google (Bấm để hủy)
+          </button>
+        </div>
+        <div v-else>
+          <GoogleLogin :callback="handleCredentialResponse" />
+        </div>
         <div class="modal-actions">
           <button @click="closeSocialLink">Đóng</button>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Modal Confirm Unlink -->
+<div v-if="showConfirmUnlink" class="modal">
+  <div class="modal-content">
+    <h3>Xác nhận</h3>
+    <p>Bạn có chắc muốn hủy liên kết với {{ unlinkProviderName }}?</p>
+    <div class="modal-actions">
+      <button @click="confirmUnlink">Đồng ý</button>
+      <button @click="closeConfirmUnlink">Hủy</button>
+    </div>
+  </div>
+</div>
+<!-- Modal OTP -->
+<div v-if="showOtpModal" class="modal">
+  <div class="modal-content">
+    <h3>Nhập mã OTP</h3>
+    <p>Mã OTP 6 số đã được gửi về email {{ user.email }}</p>
+    <input
+      type="text"
+      v-model="otpCode"
+      maxlength="6"
+      placeholder="Nhập OTP"
+    />
+    <div class="modal-actions">
+      <button @click="verifyOtpAndUnlink">Xác nhận</button>
+      <button @click="closeOtpModal">Hủy</button>
+    </div>
+  </div>
+</div>
 </template>
 
 <script setup>
@@ -99,7 +135,8 @@ const user = ref({
   updatedAt: "",
   coin: 0,
   experiencePoints: 0,
-  roleNames: []
+  roleNames: [],
+  socialGoogleAccounts: false
 })
 
 onMounted(async () => {
@@ -116,7 +153,8 @@ onMounted(async () => {
       updatedAt: userInfor.data.data.updatedAt,
       coin: userInfor.data.data.coin || 0,
       experiencePoints: userInfor.data.data.experiencePoints || 0,
-      roleNames: userInfor.data.data.roleNames || []
+      roleNames: userInfor.data.data.roleNames || [],
+      socialGoogleAccounts: userInfor.data.data.isLinkGoogle || []
     }
   } catch (err) {
     toast.error("Lỗi khi load user:", err)
@@ -177,6 +215,74 @@ function changePassword() {
 
 function openSocialLink() { showSocialLink.value = true }
 function closeSocialLink() { showSocialLink.value = false }
+
+const showConfirmUnlink = ref(false);
+const unlinkProviderName = ref("");
+const showOtpModal = ref(false)
+const otpCode = ref("")
+function unlinkSocialAccount(provider) {
+  unlinkProviderName.value = provider === 'google' ? 'Google' : provider;
+  showConfirmUnlink.value = true;
+}
+
+function closeConfirmUnlink() {
+  showConfirmUnlink.value = false;
+  unlinkProviderName.value = "";
+}
+
+async function confirmUnlink() {
+  try {
+    // Giả sử bạn có một use case để hủy liên kết tài khoản xã hội
+    //const res = await linkSocialAccountUseCase.execute(unlinkProviderName.value.toLowerCase(), null, true);
+    // Gửi yêu cầu backend tạo OTP
+    // Giả sử bạn có useCase sendOtpUseCase
+    // const res = await sendOtpUseCase.execute(unlinkProviderName.value.toLowerCase())
+    // if (res.data.isSuccess) {
+    //   toast.success("Mã OTP đã được gửi đến email của bạn")
+    // }
+    toast.success("Mã OTP đã được gửi đến email của bạn") // giả lập
+    showConfirmUnlink.value = false   // đóng modal xác nhận
+    showOtpModal.value = true 
+    
+  } catch (error) {
+    console.error('Lỗi khi gửi OTP:', error);
+    toast.error('Không thể gửi OTP.');
+  } finally {
+    closeConfirmUnlink();
+  }
+}
+function closeOtpModal() {
+  showOtpModal.value = false
+  otpCode.value = ""
+}
+
+async function verifyOtpAndUnlink() {
+  try {
+    // Gửi OTP lên server để xác minh và unlink
+    // const res = await unlinkSocialAccountUseCase.execute(unlinkProviderName.value.toLowerCase(), otpCode.value)
+    // if (res.data.isSuccess) {
+    //   toast.success(`Đã hủy liên kết với ${unlinkProviderName.value}`)
+    //   user.value.socialGoogleAccounts = false
+    //   closeOtpModal()
+    // } else {
+    //   toast.error("OTP không hợp lệ hoặc unlink thất bại")
+    // }
+
+    // Giả lập thành công
+    if (otpCode.value === "123456") {
+      toast.success(`Đã hủy liên kết với ${unlinkProviderName.value}`)
+      user.value.socialGoogleAccounts = false
+      closeOtpModal()
+    } else {
+      toast.error("OTP không hợp lệ")
+    }
+  } catch (err) {
+    console.error("Lỗi xác minh OTP:", err)
+    toast.error("Có lỗi xảy ra khi xác minh OTP")
+  }
+}
+
+
 </script>
 
 <style scoped>
@@ -402,6 +508,33 @@ function closeSocialLink() { showSocialLink.value = false }
   border-color: #42b983;
   background: #f3fff9;
 }
+.modal-content h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #222;
+}
+.modal-content p {
+  font-size: 1rem;
+  color: #444;   /* chữ rõ hơn */
+  margin: 1rem 0;
+}
+.modal-actions button:first-child {
+  background: #42b983; /* xanh lá */
+  color: #fff;
+}
+.modal-actions button:first-child:hover {
+  background: #379a6e;
+}
+
+/* Nút Hủy */
+.modal-actions button:last-child {
+  background: #f5f5f5;
+  color: #333;
+}
+.modal-actions button:last-child:hover {
+  background: #e0e0e0;
+}
 /* Hiệu ứng */
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -412,4 +545,6 @@ function closeSocialLink() { showSocialLink.value = false }
   from { transform: translateY(30px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+
 </style>

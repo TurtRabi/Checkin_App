@@ -86,6 +86,15 @@ namespace Service.UserService
             {
                 return ServiceResult<UserResponseDto>.Fail("Người dùng không tồn tại.", 404);
             }
+            bool checkLinkGoogleAccount = false;
+            var checkLinkAccounts = await _unitOfWork.SocialAuthenticationRepository.FindAsync(f => f.UserId == user.Id);
+            foreach(var linkAccount in checkLinkAccounts)
+            {
+                if (linkAccount.Provider.ToLower().Equals("Google".ToLower()))
+                {
+                    checkLinkGoogleAccount = true;
+                }
+            }
 
             var roleNames = await _unitOfWork.UserRoleRepository
                 .Query()
@@ -106,7 +115,8 @@ namespace Service.UserService
                 UpdatedAt = user.UpdatedAt,
                 Coin = user.Coin,
                 ExperiencePoints = user.ExperiencePoints,
-                RoleNames = roleNames
+                RoleNames = roleNames,
+                isLinkGoogle = checkLinkGoogleAccount
             });
         }
 

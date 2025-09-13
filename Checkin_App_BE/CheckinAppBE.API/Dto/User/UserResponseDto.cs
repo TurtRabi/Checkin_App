@@ -13,6 +13,7 @@ namespace Dto.User
         public DateTime UpdatedAt { get; set; }
         public int Coin { get; set; }
         public int ExperiencePoints { get; set; }
+        public  bool? isLinkGoogle { get; set; }
         public List<string> RoleNames { get; set; } = new List<string>();
     }
 }

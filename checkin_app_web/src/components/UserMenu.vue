@@ -55,6 +55,25 @@
       </div>
     </transition>
   </div>
+
+  <!-- Modal OTP -->
+<div v-if="showOtpModal" class="modal">
+  <div class="modal-content">
+    <h3>Nhập mã OTP</h3>
+    <p>Mã OTP 6 số đã được gửi về email {{ user.email }}</p>
+    <input
+      type="text"
+      v-model="otpCode"
+      maxlength="6"
+      placeholder="Nhập OTP"
+    />
+    <div class="modal-actions">
+      <button @click="verifyOtpAndUnlink">Xác nhận</button>
+      <button @click="closeOtpModal">Hủy</button>
+    </div>
+  </div>
+</div>
+
 </template>
 
 <script setup>

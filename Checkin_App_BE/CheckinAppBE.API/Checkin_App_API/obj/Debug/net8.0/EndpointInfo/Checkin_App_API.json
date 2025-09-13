@@ -3960,6 +3960,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "isLinkGoogle": {
+            "type": "boolean",
+            "nullable": true
+          },
           "roleNames": {
             "type": "array",
             "items": {

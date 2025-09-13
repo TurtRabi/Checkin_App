@@ -662,6 +662,7 @@ namespace Service.AuthenticationService
                     return ServiceResult.Fail("Tài khoản MXH này đã liên kết với user khác.", 409);
             }
 
+
             // Check user tồn tại
             var user = await _unitOfWork.UserRepository.GetFirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
@@ -670,13 +671,17 @@ namespace Service.AuthenticationService
             }
             else
             {
+                var userLinkSoicialAnortherAccount = await _unitOfWork.SocialAuthenticationRepository.GetFirstOrDefaultAsync(sa => sa.UserId == user.Id);
+                if (userLinkSoicialAnortherAccount != null)
+                {
+                    return ServiceResult.Fail("Tài khoản này đã liên kết với tài khoản khác", 410);
+                }
                 // Cập nhật email nếu chưa có
                 if (string.IsNullOrEmpty(user.Email) && !string.IsNullOrEmpty(socialEmail))
                 {
                     user.Email = socialEmail;
                     _unitOfWork.UserRepository.Update(user);
                 }
-            }
 
                 // Thêm liên kết mới
                 var newSocialAuth = new SocialAuthentication
@@ -688,10 +693,11 @@ namespace Service.AuthenticationService
                     CreatedAt = DateTime.UtcNow
                 };
 
-            await _unitOfWork.SocialAuthenticationRepository.AddAsync(newSocialAuth);
-            await _unitOfWork.CommitAsync();
+                await _unitOfWork.SocialAuthenticationRepository.AddAsync(newSocialAuth);
+                await _unitOfWork.CommitAsync();
 
-            return ServiceResult.Success("Liên kết thành công.");
+                return ServiceResult.Success("Liên kết thành công.");
+            }
         }
 
         public async Task<ServiceResult> UnlinkSocialAccountAsync(Guid userId, UnlinkSocialAccountRequestDto request)
